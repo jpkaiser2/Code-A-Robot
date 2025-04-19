@@ -198,7 +198,7 @@ int arm position; // No spaces allowed`}
         <h2>What Is a String?</h2>
         <p>
           A String is a special kind of variable that stores text. Even though it looks simple, 
-          it's actually an object, not a primitive type. That just means it comes with extra abilities, called methods.
+          it's actually an object, not a primitive type. That just means it comes with extra abilities, called methods. Notice that String always starts with a capital "S". All objects start with a capital letter, but we will cover this in an upcoming section.  
         </p>
         <p>Examples:</p>
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
