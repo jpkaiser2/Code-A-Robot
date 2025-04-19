@@ -66,4 +66,32 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1 {
+    font-size: 2em !important;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+  h2 {
+    font-size: 1.5em !important;
+    font-weight: bold;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  h3 {
+    font-size: 1.17em !important;
+    font-weight: bold;
+    margin-top: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+  p {
+    margin-bottom: 1rem;
+  }
+  ul {
+    list-style-type: disc;
+    padding-left: 2rem;
+    margin-bottom: 1rem;
+  }
+  ul li {
+    margin-bottom: 0.5rem;
+  }
 }

@@ -12,8 +12,8 @@ export default function WelcomeToJavaLesson() {
   
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
-      <div className="prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none">
-        <h1 className="text-3xl font-bold mb-8">Welcome to Java</h1>
+      <div>
+        <h1>Welcome to Java</h1>
         
         <p>
           Java is the foundation of programming in the FIRST Tech Challenge. It is the language 
@@ -22,6 +22,7 @@ export default function WelcomeToJavaLesson() {
           used across industries to build software systems, applications, and large-scale infrastructure.
         </p>
         
+        <br />
         <p>
           By learning Java through FTC, you're gaining experience with a language that is used in 
           professional environments around the world. Java is known for its clarity, portability, 
@@ -29,6 +30,7 @@ export default function WelcomeToJavaLesson() {
           especially important in robotics, where consistency and precision matter.
         </p>
         
+        <br />
         <p>
           One of the core strengths of Java is its support for object-oriented programming (OOP). 
           In FTC, robots are built from distinct physical components—motors, sensors, servos, etc. 
@@ -37,6 +39,7 @@ export default function WelcomeToJavaLesson() {
           scalable code.
         </p>
         
+        <br />
         <p>
           As you progress through this course, you'll gain an understanding of key OOP principles 
           and see how they apply directly to the systems you build in FTC. These concepts aren't 
@@ -44,6 +47,7 @@ export default function WelcomeToJavaLesson() {
           every domain.
         </p>
         
+        <br />
         <p>
           The goal of this course is not just to help you program a working robot. It's to give you 
           a solid foundation in Java that you can carry beyond FTC to other engineering challenges, 
@@ -51,6 +55,7 @@ export default function WelcomeToJavaLesson() {
           here—logical thinking, software design, problem-solving—are highly transferable and in demand.
         </p>
         
+        <br />
         <p>
           Whether or not you pursue computer science long-term, understanding how software works at 
           this level will give you an edge. In FTC, it will help you write more efficient, adaptable 
@@ -58,6 +63,7 @@ export default function WelcomeToJavaLesson() {
           the digital world operates.
         </p>
         
+        <br />
         <p>Let's begin!</p>
         
         <div className="mt-10 flex justify-center">

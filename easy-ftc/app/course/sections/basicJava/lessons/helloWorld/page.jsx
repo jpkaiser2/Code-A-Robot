@@ -5,7 +5,6 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export const metadata = {
   title: "Hello World | EasyFTC",
-  description: "Your first Java program for FIRST Tech Challenge robotics"
 };
 
 export default function HelloWorldLesson() {
@@ -14,7 +13,7 @@ export default function HelloWorldLesson() {
   
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
-      <div className="prose prose-sm md:prose-base lg:prose-lg dark:prose-invert max-w-none prose-headings:font-bold prose-h1:text-3xl prose-h2:text-2xl prose-h3:text-xl prose-p:text-base">
+      <div>
         <h1>Hello World!</h1>
         
         <p>
@@ -22,8 +21,8 @@ export default function HelloWorldLesson() {
           we need to understand the basics of Java itself — and that starts with a simple, classic program: Hello World.
         </p>
         
+        <br />
         <h2>What You'll Learn</h2>
-        
         <ul>
           <li>How to write your first Java program</li>
           <li>What the main method is and why it matters</li>
@@ -31,8 +30,8 @@ export default function HelloWorldLesson() {
           <li>The difference between print and println</li>
         </ul>
         
+        <br />
         <h2>Your First Program</h2>
-        
         <p>Let's jump right into some code:</p>
         
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
@@ -45,6 +44,7 @@ export default function HelloWorldLesson() {
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <h2>Let's Break It Down</h2>
         
         <div className="overflow-x-auto">
@@ -72,8 +72,8 @@ export default function HelloWorldLesson() {
           </table>
         </div>
         
+        <br />
         <h2>print vs println</h2>
-        
         <p>Java gives you two ways to print to the console:</p>
         
         <h3>System.out.println()</h3>
@@ -87,6 +87,7 @@ System.out.println("Line 2");`}
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <p>Output:</p>
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
           <SyntaxHighlighter style={vscDarkPlus}>
@@ -95,6 +96,7 @@ Line 2`}
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <h3>System.out.print()</h3>
         <p>Prints the text but stays on the same line</p>
         <p>Great when you want to build a line of text in parts</p>
@@ -106,6 +108,7 @@ System.out.print("1");`}
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <p>Output:</p>
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
           <SyntaxHighlighter style={vscDarkPlus}>
@@ -113,8 +116,8 @@ System.out.print("1");`}
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <h2>Quick Tip</h2>
-        
         <p>You can mix print and println to control how your output looks:</p>
         
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
@@ -125,6 +128,7 @@ System.out.println("This is a new line.");`}
           </SyntaxHighlighter>
         </div>
         
+        <br />
         <p>Output:</p>
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
           <SyntaxHighlighter style={vscDarkPlus}>
@@ -133,25 +137,8 @@ This is a new line.`}
           </SyntaxHighlighter>
         </div>
         
-        <h2>Try It Yourself!</h2>
-        
-        <p>Copy this code into an online Java compiler (like replit.com, JDoodle, or paiza.io):</p>
-        
-        <div className="bg-muted p-4 rounded-md overflow-x-auto">
-          <SyntaxHighlighter language="java" style={vscDarkPlus}>
-{`public class HelloWorld {
-    public static void main(String[] args) {
-        System.out.print("Hello ");
-        System.out.println("FTC Programmer!");
-    }
-}`}
-          </SyntaxHighlighter>
-        </div>
-        
-        <p>Try changing the messages. What happens if you add more println() or mix in extra print() lines?</p>
-        
+        <br />
         <h2>Recap</h2>
-        
         <ul>
           <li>Every Java program starts with a class and a main method</li>
           <li>System.out.print() and System.out.println() let you display text</li>
