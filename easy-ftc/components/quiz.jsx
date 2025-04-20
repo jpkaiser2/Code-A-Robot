@@ -2,7 +2,75 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+// Function to detect and format code blocks in text
+function formatTextWithCode(text) {
+  if (!text) return null;
+  
+  // If text doesn't contain code markers, return it as is
+  if (!text.includes("```")) {
+    return <span>{text}</span>;
+  }
+  
+  // Parse text to separate code blocks from regular text
+  const segments = [];
+  let currentPosition = 0;
+  let codeBlockRegex = /```(java|javascript|python)?\n([\s\S]*?)```/g;
+  let match;
+  
+  while ((match = codeBlockRegex.exec(text)) !== null) {
+    // Add text before code block if any
+    if (match.index > currentPosition) {
+      segments.push({
+        type: 'text',
+        content: text.slice(currentPosition, match.index)
+      });
+    }
+    
+    // Add code block
+    segments.push({
+      type: 'code',
+      language: match[1] || 'java',
+      content: match[2]
+    });
+    
+    currentPosition = match.index + match[0].length;
+  }
+  
+  // Add remaining text after last code block if any
+  if (currentPosition < text.length) {
+    segments.push({
+      type: 'text',
+      content: text.slice(currentPosition)
+    });
+  }
+  
+  // Render segments
+  return (
+    <>
+      {segments.map((segment, index) => {
+        if (segment.type === 'text') {
+          return <span key={index}>{segment.content}</span>;
+        } else {
+          return (
+            <SyntaxHighlighter
+              key={index}
+              language={segment.language}
+              style={vscDarkPlus}
+              className="rounded-md my-2"
+              wrapLines={true}
+              customStyle={{ margin: '0.5rem 0' }}
+            >
+              {segment.content}
+            </SyntaxHighlighter>
+          );
+        }
+      })}
+    </>
+  );
+}
 
 export default function Quiz({ questions, title = "Quiz" }) {
   const [current, setCurrent] = useState(0);
@@ -69,7 +137,7 @@ export default function Quiz({ questions, title = "Quiz" }) {
             {/* Question Box */}
             <div className="p-6 bg-muted border border-border rounded-xl mb-6 shadow-sm">
               <h2 className="text-xl font-semibold text-foreground">
-                Question {current + 1}: {questions[current].question}
+                Question {current + 1}: {formatTextWithCode(questions[current].question)}
               </h2>
             </div>
 
@@ -77,14 +145,14 @@ export default function Quiz({ questions, title = "Quiz" }) {
             <div className="grid gap-4">
               {questions[current].options.map((option, idx) => (
                 <button
-                  key={option}
+                  key={idx}
                   onClick={() => handleClick(option)}
-                  className="flex items-center gap-4 px-4 py-3 border border-primary bg-background rounded-xl hover:bg-primary hover:text-primary-foreground transition text-left shadow-sm text-foreground"
+                  className="flex items-start gap-4 px-4 py-3 border border-primary bg-background rounded-xl hover:bg-primary hover:text-primary-foreground transition text-left shadow-sm text-foreground"
                 >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full border-2 border-primary font-bold">
+                  <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 mt-1 rounded-full border-2 border-primary font-bold">
                     {optionLetters[idx]}
                   </div>
-                  <span className="font-medium">{option}</span>
+                  <div className="font-medium w-full">{formatTextWithCode(option)}</div>
                 </button>
               ))}
             </div>
@@ -117,26 +185,26 @@ export default function Quiz({ questions, title = "Quiz" }) {
                 }`}
               >
                 <p className="font-semibold mb-2 text-foreground">
-                  Q{i + 1}: {a.question}
+                  Q{i + 1}: {formatTextWithCode(a.question)}
                 </p>
-                <p className="text-foreground">
-                  Your answer:{" "}
+                <div className="text-foreground">
+                  <span>Your answer: </span>
                   <span
                     className={`font-medium ${
                       a.isCorrect ? "text-green-500" : "text-red-500"
                     }`}
                   >
-                    {a.selected}
+                    {formatTextWithCode(a.selected)}
                   </span>{" "}
                   {a.isCorrect ? "✅" : "❌"}
-                </p>
+                </div>
                 {!a.isCorrect && (
-                  <p className="text-foreground">
-                    Correct answer:{" "}
+                  <div className="text-foreground mt-2">
+                    <span>Correct answer: </span>
                     <span className="font-medium text-green-500">
-                      {a.correct}
+                      {formatTextWithCode(a.correct)}
                     </span>
-                  </p>
+                  </div>
                 )}
               </div>
             ))}
