@@ -53,8 +53,8 @@ const sentences = [
 
 
 export default function PrimitiveTypesFillIn() {
-  // This lesson has 3 points (matches the primitiveTypes lesson)
-  const lessonPoints = 3;
+  // This lesson has 4 points (matches the primitiveTypes lesson)
+  const lessonPoints = 4;
   
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
