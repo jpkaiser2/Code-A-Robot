@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import CodeEditor from '@/components/CodeEditor';
 
-export default function TestJudge0() {
+const TestJudge0 = () => {
   const [files, setFiles] = useState([
     {
       id: '1',
@@ -56,4 +56,6 @@ export default function TestJudge0() {
       </div>
     </div>
   );
-} 
+};
+
+export default TestJudge0; 

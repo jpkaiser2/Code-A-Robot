@@ -2,6 +2,7 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import HelloWorldEditor from "./HelloWorldEditor";
 
 export const metadata = {
   title: "Hello World | EasyFTC",
@@ -43,6 +44,8 @@ export default function HelloWorldLesson() {
 }`}
           </SyntaxHighlighter>
         </div>
+        
+       
         
         <br />
         <h2>Let's Break It Down</h2>
@@ -136,7 +139,13 @@ System.out.println("This is a new line.");`}
 This is a new line.`}
           </SyntaxHighlighter>
         </div>
+        <br />
+        <h2>Try It Yourself!</h2>
+        <p>Use the editor below to run your own Hello World program. Feel free to modify the message or add more print statements!</p>
         
+        <div className="h-[600px] mt-4">
+          <HelloWorldEditor />
+        </div>
         <br />
         <h2>Recap</h2>
         <ul>

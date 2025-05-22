@@ -28,6 +28,10 @@ export default function CodeEditor({
   const [currentInput, setCurrentInput] = useState('');
   const [isWaitingForInput, setIsWaitingForInput] = useState(false);
   const inputRef = useRef(null);
+  const [editorWidth, setEditorWidth] = useState(500);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(0);
 
   useEffect(() => {
     if (editorRef.current) {
@@ -46,6 +50,9 @@ export default function CodeEditor({
         scrollPastEnd: 0.5,
         useSoftTabs: true,
         useWorker: true,
+        wrap: true,
+        wrapMethod: 'text',
+        indentedSoftWrap: true,
       });
     }
   }, []);
@@ -233,6 +240,37 @@ export default function CodeEditor({
 
   const activeFileData = files.find(f => f.id === activeFile);
 
+  const handleMouseDown = (e) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = editorWidth;
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging.current) return;
+    const deltaX = e.clientX - dragStartX.current;
+    const newWidth = dragStartWidth.current + deltaX;
+    if (newWidth > 300 && newWidth < window.innerWidth - 400) {
+      setEditorWidth(newWidth);
+    }
+  };
+
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+
+  // Cleanup event listeners
+  useEffect(() => {
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, []);
+
   return (
     <div className="flex flex-col h-full bg-[#1E1E1E] rounded-lg overflow-hidden">
       {/* Toolbar */}
@@ -264,7 +302,7 @@ export default function CodeEditor({
 
       <div className="flex-1 flex">
         {/* Main Editor */}
-        <div className="flex flex-col flex-1 min-w-[600px]">
+        <div className="flex flex-col" style={{ width: `${editorWidth}px` }}>
           {/* File Tabs */}
           <div className="flex bg-[#1e1f1c] border-b border-gray-700">
             {files.map((file) => (
@@ -312,8 +350,14 @@ export default function CodeEditor({
           </div>
         </div>
 
+        {/* Resize Handle */}
+        <div 
+          className="w-1 bg-gray-700 cursor-col-resize hover:bg-blue-500 transition-colors"
+          onMouseDown={handleMouseDown}
+        />
+
         {/* Terminal Panel */}
-        <div className="w-[600px] border-l border-gray-700 flex flex-col">
+        <div className="flex-1 border-l border-gray-700 flex flex-col">
           <div className="bg-[#1e1f1c] px-4 py-2 border-b border-gray-700 flex justify-between items-center">
             <div className="flex space-x-4">
               <button
@@ -332,12 +376,6 @@ export default function CodeEditor({
                 <div className="flex items-center space-x-2">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
                   <span className="text-sm text-gray-400">Running...</span>
-                </div>
-              )}
-              {result && (
-                <div className="text-sm text-gray-400">
-                  {result.time && <span className="mr-4">Time: {result.time}ms</span>}
-                  {result.memory && <span>Memory: {result.memory}KB</span>}
                 </div>
               )}
             </div>
@@ -364,7 +402,7 @@ export default function CodeEditor({
                       ) : entry.type === 'compile' ? (
                         <div className="text-yellow-400">{entry.content}</div>
                       ) : (
-                        <div className="text-gray-300">{entry.content}</div>
+                        <div className="text-gray-300 whitespace-pre-wrap">{entry.content}</div>
                       )}
                     </div>
                   ))
