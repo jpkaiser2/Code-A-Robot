@@ -2,6 +2,7 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import PrimitiveTypesEditor from "./PrimitiveTypesEditor";
 
 export const metadata = {
   title: "Primitive Types | EasyFTC",
@@ -169,7 +170,7 @@ motorPower = 100;         // Initialization later`}
         </ul>
 
         <br />
-        <p>In Java, we use camel case to name variables. That means:</p>
+        <p>Most programmers use camel case to name variables. That means:</p>
         <ul>
           <li>The first word is lowercase</li>
           <li>Every new word starts with a capital letter</li>
@@ -308,7 +309,7 @@ System.out.println("Team: " + name + " #" + teamNumber);`}
 
         <br />
         <h2>FTC Code Example</h2>
-        <p>Here's a real-world example of everything in action:</p>
+        <p>Here's an example of everything in action:</p>
         <div className="bg-muted p-4 rounded-md overflow-x-auto">
           <SyntaxHighlighter language="java" style={vscDarkPlus}>
             {`public void runOpMode() {
@@ -334,7 +335,12 @@ System.out.println("Team: " + name + " #" + teamNumber);`}
 }`}
           </SyntaxHighlighter>
         </div>
-
+        <h2>Try It Yourself!</h2>
+        <p>Use the editor below to create your own program using primitive types. Include String, int, double, and boolean values.</p>
+        
+        <div className="h-[600px] mt-4">
+          <PrimitiveTypesEditor />
+        </div>
         <br />
         <h2>Wrap-Up</h2>
         <p>You've now learned how to:</p>
