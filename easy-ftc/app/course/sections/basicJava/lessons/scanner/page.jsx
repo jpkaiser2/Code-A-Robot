@@ -2,6 +2,7 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import ScannerEditor from "./ScannerEditor";
 
 export const metadata = {
   title: "Scanner Class | EasyFTC",
@@ -135,7 +136,13 @@ String text = scanner.nextLine();`}
             </div>
           </li>
         </ul>
-        
+        <br />
+        <h2>Try It Yourself!</h2>
+                <p>Use the editor below to create your own program using the scanner. Modify the code and input in the terminal.</p>
+                
+                <div className="h-[600px] mt-4">
+                  <ScannerEditor />
+                </div>
         <div className="mt-10 flex justify-center">
           <LessonCompleteButton lessonPoints={lessonPoints} />
         </div>
