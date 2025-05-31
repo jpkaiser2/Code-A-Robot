@@ -13,7 +13,6 @@ export default function CodeEditor({
   onFileSelect,
   stdin = '',
   onStdinChange,
-  onRun,
 }) {
   const editorRef = useRef(null);
   const [activeFile, setActiveFile] = useState(files[0]?.id || null);
@@ -117,9 +116,6 @@ export default function CodeEditor({
 
       if (data.status.id > 2) {
         setResult(data);
-        if (onRun) {
-          onRun(data);
-        }
         setLoading(false);
         setSubmissionToken(null);
         if (pollingInterval.current) {
@@ -204,9 +200,10 @@ export default function CodeEditor({
       e.preventDefault();
       if (currentInput.trim()) {
         addToTerminalHistory('input', currentInput);
-        onStdinChange(currentInput);
+        if (onStdinChange) {
+          onStdinChange(currentInput);
+        }
         setCurrentInput('');
-        setIsWaitingForInput(false);
       }
     }
   };
@@ -215,6 +212,10 @@ export default function CodeEditor({
   useEffect(() => {
     if (result && result.stdout) {
       addToTerminalHistory('output', result.stdout);
+      // Check if the program is waiting for input
+      if (result.stdout.includes('Enter')) {
+        setIsWaitingForInput(true);
+      }
     }
     if (result && result.stderr) {
       addToTerminalHistory('error', result.stderr);
@@ -324,19 +325,35 @@ export default function CodeEditor({
           </div>
 
           {/* Editor */}
-          <div className="flex-1">
+          <div className="flex-1 relative">
             {activeFileData && (
               <AceEditor
                 ref={editorRef}
                 mode="java"
                 theme="monokai"
+                name="code-editor"
                 value={activeFileData.content}
                 onChange={handleChange}
-                name="code-editor"
-                editorProps={{ $blockScrolling: true }}
                 width="100%"
-                height="600px"
-                className="rounded-lg"
+                height="100%"
+                setOptions={{
+                  enableBasicAutocompletion: true,
+                  enableLiveAutocompletion: true,
+                  enableSnippets: true,
+                  showLineNumbers: true,
+                  showGutter: true,
+                  fontSize: 14,
+                  tabSize: 2,
+                  highlightActiveLine: true,
+                  highlightGutterLine: true,
+                  showPrintMargin: false,
+                  scrollPastEnd: 0.5,
+                  useSoftTabs: true,
+                  useWorker: true,
+                  wrap: true,
+                  wrapMethod: 'text',
+                  indentedSoftWrap: true,
+                }}
               />
             )}
           </div>

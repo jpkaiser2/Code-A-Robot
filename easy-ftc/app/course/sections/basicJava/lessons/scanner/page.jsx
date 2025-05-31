@@ -2,7 +2,6 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ScannerEditor from "./ScannerEditor";
 
 export const metadata = {
   title: "Scanner Class | EasyFTC",
@@ -18,7 +17,7 @@ export default function Scanner() {
         <h1>Scanner Class</h1>
         
         <p>
-          The Scanner class in Java lets us take input from the user. For example, you might ask the user to enter the robot’s starting position or how far it should drive.
+          The Scanner class in Java lets us take input from the user. This is an essential part of making applications dynamic, or able to change based on the user.
         </p>
         
         <h2>Importing and Creating a Scanner</h2>
@@ -136,13 +135,7 @@ String text = scanner.nextLine();`}
             </div>
           </li>
         </ul>
-        <br />
-        <h2>Try It Yourself!</h2>
-                <p>Use the editor below to create your own program using the scanner. Modify the code and input in the terminal.</p>
-                
-                <div className="h-[600px] mt-4">
-                  <ScannerEditor />
-                </div>
+        
         <div className="mt-10 flex justify-center">
           <LessonCompleteButton lessonPoints={lessonPoints} />
         </div>
