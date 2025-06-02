@@ -2,6 +2,7 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import CastingEditor from "./CastingEditor";
 
 export const metadata = {
   title: "Casting | EasyFTC",
@@ -228,7 +229,14 @@ System.out.println(lessPrecise); // prints something like: 123.45679 (only 7 sig
             </tbody>
           </table>
         </div>
-
+         <br />
+        <h2>Try It Yourself!</h2>
+        <p>Complete the code as described by the comments.</p>
+        
+        <div className="h-[600px] mt-4">
+          <CastingEditor />
+        </div>
+        <br />
         <br />
         <h2>Recap</h2>
         <h3>Implicit Casting (Widening)</h3>
