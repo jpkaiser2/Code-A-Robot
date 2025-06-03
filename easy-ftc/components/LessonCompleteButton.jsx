@@ -13,63 +13,38 @@ export default function LessonCompleteButton({ lessonPoints }) {
     setIsLoading(true);
     
     try {
+      // Ensure lessonPoints is a number
+      const points = Number(lessonPoints);
+      if (isNaN(points)) {
+        console.error("Invalid lesson points:", lessonPoints);
+        router.replace("/dashboard");
+        return;
+      }
+
       const formData = new FormData();
-      formData.append("points", lessonPoints);
+      formData.append("points", points);
       
-      console.log("Submitting lesson completion for points:", lessonPoints);
-      
-      // Use fetch with manual redirect handling
       const response = await fetch("/api/complete-lesson", {
         method: "POST",
-        body: formData,
-        redirect: "manual" // Don't auto-follow redirects so we can debug
+        body: formData
       });
       
-      console.log("Response:", {
-        status: response.status,
-        redirected: response.redirected,
-        type: response.type,
-        url: response.url,
-        headers: Object.fromEntries([...response.headers.entries()])
-      });
-      
-      // For 3xx status codes, follow the Location header
-      if (response.status >= 300 && response.status < 400) {
-        const location = response.headers.get("Location");
+      if (response.ok) {
+        const data = await response.json();
         
-        console.log("Redirect location:", location);
-        
-        if (location) {
-          console.log("Following redirect to:", location);
-          window.location.href = location;
+        if (data.destination) {
+          // Use replace instead of push to prevent back button from returning to the lesson
+          router.replace(data.destination);
           return;
         }
       }
       
-      // If not redirected but the response is OK, try JSON
-      if (response.ok) {
-        try {
-          const data = await response.json();
-          console.log("Response data:", data);
-          
-          // If there's a destination in the response, use it
-          if (data && data.destination) {
-            console.log("Using destination from response:", data.destination);
-            window.location.href = data.destination;
-            return;
-          }
-        } catch (jsonError) {
-          console.log("Not a JSON response");
-        }
-      }
-      
       // Fallback - if everything else fails, go to the dashboard
-      console.log("No clear redirect path, defaulting to dashboard");
-      window.location.href = "/dashboard";
+      router.replace("/dashboard");
       
     } catch (error) {
       console.error("Error completing lesson:", error);
-      window.location.href = "/dashboard";
+      router.replace("/dashboard");
     } finally {
       setIsLoading(false);
     }
@@ -83,7 +58,7 @@ export default function LessonCompleteButton({ lessonPoints }) {
         disabled={isLoading} 
         className="mt-6 w-full sm:w-auto"
       >
-        {isLoading ? "Completing..." : "Complete Lesson & Continue"}
+        {isLoading ? "Loading..." : "Complete Lesson & Continue"}
       </Button>
     </form>
   );

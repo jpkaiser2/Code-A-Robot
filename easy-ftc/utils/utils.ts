@@ -41,7 +41,14 @@ export function encodedRedirect(
     // This allows API routes to access the destination path
     destination,
     // This is a non-serializable function, but we only use it server-side
-    redirect: () => redirect(destination)
+    redirect: () => {
+      // For lesson paths, use the path directly without query parameters
+      if (isLessonPath) {
+        return redirect(path);
+      }
+      // For other paths, use the destination with query parameters
+      return redirect(destination);
+    }
   };
 }
 

@@ -24,18 +24,48 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
 
   const userPoints = progress?.points || 0;
 
-  // Get all lessons to build the navigation bar
-  const { data: allLessons } = await supabase
+  // Get current lesson and its section
+  const { data: currentLesson } = await supabase
+    .from('lessons')
+    .select('*')
+    .eq('unlock_at', currentLessonPoints)
+    .single();
+
+  if (!currentLesson) {
+    return redirect("/dashboard");
+  }
+
+  const currentSection = currentLesson.slug.split('/')[3];
+
+  // Get lessons for current section only
+  const { data: sectionLessons } = await supabase
     .from('lessons')
     .select('*')
     .order('unlock_at', { ascending: true });
 
-  // Get the current path to determine the section
-  const currentLesson = allLessons?.find(lesson => lesson.unlock_at === currentLessonPoints);
-  const currentSection = currentLesson?.slug.split('/')[3] || null;
+  // Filter lessons by current section
+  const filteredLessons = sectionLessons?.filter(lesson => {
+    const lessonSection = lesson.slug.split('/')[3];
+    return lessonSection === currentSection;
+  }) || [];
 
-  // Get all unique sections and their first lessons
-  const sections = allLessons?.reduce((acc, lesson) => {
+  // Find current lesson index
+  const currentLessonIndex = filteredLessons.findIndex(
+    lesson => lesson.unlock_at === currentLessonPoints
+  );
+
+  // Get previous and next lessons
+  const prevLesson = currentLessonIndex > 0 ? filteredLessons[currentLessonIndex - 1] : null;
+  const nextLesson = currentLessonIndex < filteredLessons.length - 1 ? filteredLessons[currentLessonIndex + 1] : null;
+
+  // Get all sections for navigation
+  const { data: sections } = await supabase
+    .from('lessons')
+    .select('*')
+    .order('unlock_at', { ascending: true });
+
+  // Get unique sections and their first lessons
+  const sectionMap = sections?.reduce((acc, lesson) => {
     const section = lesson.slug.split('/')[3];
     if (!acc[section]) {
       acc[section] = {
@@ -46,60 +76,6 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
     }
     return acc;
   }, {}) || {};
-
-  // Filter lessons by current section
-  const sectionLessons = allLessons?.filter(lesson => {
-    const lessonSection = lesson.slug.split('/')[3];
-    return lessonSection === currentSection;
-  }) || [];
-
-  // Find current lesson index
-  const currentLessonIndex = sectionLessons.findIndex(
-    lesson => lesson.unlock_at === currentLessonPoints
-  );
-
-  // Get previous and next lessons, including section transitions
-  let prevLesson = null;
-  let nextLesson = null;
-
-  // Check if this is the first lesson of the entire course
-  const isFirstLessonOfCourse = allLessons?.[0]?.unlock_at === currentLessonPoints;
-  // Check if this is the last lesson of the entire course
-  const isLastLessonOfCourse = allLessons?.[allLessons.length - 1]?.unlock_at === currentLessonPoints;
-
-  if (!isFirstLessonOfCourse) {
-    if (currentLessonIndex > 0) {
-      // If not the first lesson in section, get previous lesson from same section
-      prevLesson = sectionLessons[currentLessonIndex - 1];
-    } else {
-      // If first lesson in section, get last lesson from previous section
-      const prevSectionLessons = allLessons?.filter(lesson => {
-        const lessonSection = lesson.slug.split('/')[3];
-        return lessonSection !== currentSection;
-      }).sort((a, b) => b.unlock_at - a.unlock_at) || [];
-      
-      if (prevSectionLessons.length > 0) {
-        prevLesson = prevSectionLessons[0];
-      }
-    }
-  }
-
-  if (!isLastLessonOfCourse) {
-    if (currentLessonIndex < sectionLessons.length - 1) {
-      // If not the last lesson in section, get next lesson from same section
-      nextLesson = sectionLessons[currentLessonIndex + 1];
-    } else {
-      // If last lesson in section, get first lesson from next section
-      const nextSectionLessons = allLessons?.filter(lesson => {
-        const lessonSection = lesson.slug.split('/')[3];
-        return lessonSection !== currentSection;
-      }).sort((a, b) => a.unlock_at - b.unlock_at) || [];
-      
-      if (nextSectionLessons.length > 0) {
-        nextLesson = nextSectionLessons[0];
-      }
-    }
-  }
 
   // Helper function to format section names
   const formatSectionName = (name) => {
@@ -149,7 +125,7 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-2 mb-4">
-            {sectionLessons.map((lesson) => {
+            {filteredLessons.map((lesson) => {
               const isCompleted = userPoints > lesson.unlock_at;
               const isCurrentLesson = lesson.unlock_at === currentLessonPoints;
               const isLocked = userPoints < lesson.unlock_at;
@@ -176,7 +152,7 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
             })}
           </div>
           <div className="flex flex-wrap gap-2 pt-2 border-t">
-            {Object.values(sections).map((section) => (
+            {Object.values(sectionMap).map((section) => (
               <Button
                 key={section.name}
                 variant={section.isCurrentSection ? "default" : "outline"}

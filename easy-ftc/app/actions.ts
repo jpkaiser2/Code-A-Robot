@@ -502,52 +502,47 @@ export const completeLessonAction = async (lessonPoints: number) => {
     console.log("Lesson already completed. Finding next lesson...");
   }
 
-  // Fetch the next lesson based on points
-  console.log("Looking for next lesson with unlock_at =", lessonPoints + 1);
+  // Always try to find the next lesson, regardless of whether this lesson was just completed
+  console.log("Looking for next lesson after lesson with points:", lessonPoints);
   
-  // First, let's debug by fetching ALL lessons to see what's available
-  const { data: allLessons } = await supabase
+  // Only fetch the minimal data we need
+  const { data: allLessons, error: lessonsError } = await supabase
     .from('lessons')
-    .select('*')
+    .select('slug, unlock_at')
     .order('unlock_at', { ascending: true });
     
-  console.log("All lessons:", allLessons);
+  if (lessonsError) {
+    console.error("Error fetching lessons:", lessonsError);
+    return { destination: "/dashboard", message: "Error fetching lessons" };
+  }
   
-  // Now properly fetch the next lesson
-  const { data: nextLesson, error: lessonError } = await supabase
-    .from('lessons')
-    .select('*')
-    .eq('unlock_at', lessonPoints + 1)
-    .single();
+  if (!allLessons || allLessons.length === 0) {
+    console.log("No lessons found in database");
+    return { destination: "/dashboard", message: "No lessons found in database" };
+  }
+
+  // Find the current lesson using the same logic as the dashboard
+  const currentLesson = allLessons.find(lesson => lesson.unlock_at === lessonPoints);
   
-  console.log("Next lesson lookup result:", nextLesson, "Error:", lessonError);
+  if (!currentLesson) {
+    console.log("Current lesson not found. Available points:", allLessons.map(l => l.unlock_at));
+    return { destination: "/dashboard", message: "Current lesson not found in sequence" };
+  }
+
+  // Find the next lesson by looking for the first lesson with unlock_at > current lesson's unlock_at
+  const nextLesson = allLessons.find(lesson => lesson.unlock_at > currentLesson.unlock_at);
   
   if (nextLesson) {
-    // Check if the slug is properly formatted
-    console.log("Next lesson slug format check:", {
-      slug: nextLesson.slug,
-      startsWithSlash: nextLesson.slug.startsWith('/'),
-      containsHttp: nextLesson.slug.includes('http')
-    });
-    
-    // Use the slug directly from the database, which contains the full path
-    console.log("Redirecting to:", nextLesson.slug);
-    
-    // Create the redirect without query parameters first for debugging
-    const cleanDestination = nextLesson.slug;
-    console.log("Clean destination:", cleanDestination);
-    
-    return performEncodedRedirect(encodedRedirect(
-      "success",
-      cleanDestination,
-      alreadyCompleted ? "Moving to the next lesson." : "Lesson completed! Moving to the next lesson."
-    ));
+    // Ensure the slug starts with a forward slash
+    const cleanSlug = nextLesson.slug.startsWith('/') ? nextLesson.slug : `/${nextLesson.slug}`;
+    return { 
+      destination: cleanSlug,
+      message: alreadyCompleted ? "Moving to the next lesson." : "Lesson completed! Moving to the next lesson."
+    };
   } else {
-    console.log("No next lesson found, returning to dashboard");
-    return performEncodedRedirect(encodedRedirect(
-      "success",
-      "/dashboard",
-      alreadyCompleted ? "No more lessons available." : "Congratulations! You've completed this lesson."
-    ));
+    return { 
+      destination: "/dashboard",
+      message: alreadyCompleted ? "No more lessons available." : "Congratulations! You've completed this lesson."
+    };
   }
 };
