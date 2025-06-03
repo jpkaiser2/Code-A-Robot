@@ -268,12 +268,12 @@ boolean tooFast = (speed > 3);  // true since 5 > 3`}
 
         <br />
         <h2>Try It Yourself!</h2>
-                <p>Complete the code as described by the comments.</p>
-                
-                <div className="h-[600px] mt-4">
-                  <BooleanExpressionsEditor />
-                </div>
-                <br />
+        <p>Complete the code as described by the comments.</p>
+        
+        <div className="h-[600px] mt-4">
+          <BooleanExpressionsEditor />
+        </div>
+        <br />
         <h2>Summary</h2>
         <ul className="my-4">
           <li>A boolean is either true or false.</li>
