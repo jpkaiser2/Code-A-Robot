@@ -26,13 +26,13 @@ const sentences = [
     answers: ["!"]
   },
   {
-    text: "DeMorgan's Law: The negation of (A && B) is equivalent to ____ || ____.",
+    text: "DeMorgan’s Law: The negation of (A && B) is equivalent to ____ || ____.",
     blanks: ["blank0", "blank1"],
     options: ["!A", "!B", "A", "B", "!(A && B)", "!(A || B)"],
     answers: ["!A", "!B"]
   },
   {
-    text: "DeMorgan's Law: The negation of (X || Y) is equivalent to ____ && ____.",
+    text: "DeMorgan’s Law: The negation of (X || Y) is equivalent to ____ && ____.",
     blanks: ["blank0", "blank1"],
     options: ["!X", "!Y", "X", "Y", "!(X && Y)", "!(X || Y)"],
     answers: ["!X", "!Y"]
@@ -51,25 +51,26 @@ const sentences = [
   }
 ];
 
+
+
 export default function BooleanExpressionsFillIn() {
   const lessonPoints = 12;
   
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold mb-8">Boolean Expressions Practice</h1>
+      <div>
+        <h1 className="text-3xl font-bold mb-6">Boolean Expressions Practice</h1>
         
-        <div className="prose prose-lg">
-          <p>
-            Let's test your knowledge of boolean expressions and De Morgan's Laws! Drag and drop the correct 
-            words to complete each sentence. Some sentences may have multiple blanks to fill.
-          </p>
-          
-          <FillInTheBlank 
-            title="Boolean Expressions and De Morgan's Laws" 
-            sentences={sentences} 
-          />
-        </div>
+        <p className="mb-8">
+          Let's test your knowledge of boolean expressions and De Morgan's Laws! Drag and drop the correct 
+          words to complete each sentence. Some sentences 
+          may have multiple blanks to fill.
+        </p>
+        
+        <FillInTheBlank 
+          title="Boolean Expressions and De Morgan's Laws" 
+          sentences={sentences} 
+        />
         
         <div className="mt-10 flex justify-center">
           <LessonCompleteButton lessonPoints={lessonPoints} />
