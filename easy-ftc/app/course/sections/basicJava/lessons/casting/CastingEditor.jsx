@@ -7,8 +7,8 @@ export default function CastingEditor() {
   const [files, setFiles] = useState([
     {
       id: '1',
-      name: 'Apples.java',
-      content: `public class Apples {
+      name: 'Main.java',
+      content: `public class Main {
     public static void main(String[] args) {
         // Task:
         // 1. Declare an int named "apples" and set it to 7.

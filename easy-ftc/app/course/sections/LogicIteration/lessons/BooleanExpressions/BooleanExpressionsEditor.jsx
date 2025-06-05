@@ -7,8 +7,8 @@ export default function BooleanExpressionsEditor() {
   const [files, setFiles] = useState([
     {
       id: '1',
-      name: 'PracticeDeMorgan.java',
-      content: `public class PracticeDeMorgan {
+      name: 'Main.java',
+      content: `public class Main {
     public static void main(String[] args) {
         // Two example boolean values
         boolean a = true;

@@ -7,13 +7,13 @@ export default function IfEditor() {
   const [files, setFiles] = useState([
     {
       id: '1',
-      name: 'IfStatementExercise.java',
+      name: 'Main.java',
       content: `// Directions:
 // 1. Complete each if statement condition inside the parentheses.
 // 2. Do NOT modify the existing variable declarations or the System.out.println lines.
 // 3. After filling in all conditions, run the program to verify the console output matches the expected output below.
 
-public class IfStatementExercise {
+public class Main {
     public static void main(String[] args) {
         // Pre-defined variables (do not modify):
         int batteryLevel = 48;
