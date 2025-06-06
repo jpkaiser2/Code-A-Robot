@@ -9,29 +9,29 @@ export default function ElseIfEditor() {
       id: '1',
       name: 'Main.java',
       content: `public class Main {
-    public static void main(String[] args) {
-        /*
-        The robot needs to choose an arm extension based on object distance:
-        - If distance <= 10 cm, use short arm
-        - If distance <= 20 cm, use medium arm
-        - Otherwise, use long arm
-        Fix the code below so that only one assignment occurs.
+  public static void main(String[] args) {
+    /*
+    The robot needs to choose an arm extension based on object distance:
+    - If distance <= 10 cm, use short arm
+    - If distance <= 20 cm, use medium arm
+    - Otherwise, use long arm
+    Fix the code below so that only one assignment occurs.
         */
-        int distance = 18; // distance measured by sensor in inches
-        String armLength = "";
+    int distance = 10; // distance measured by sensor in inches
+    String armLength = "";
 
-        if (distance <= 10) {
-            armLength = "SHORT";
-        }
-        if (distance <= 20) {
-            armLength = "MEDIUM";
-        }
-        if (distance > 20) {
-            armLength = "LONG";
-        }
-
-        System.out.println("Selected arm: " + armLength);  // Expected output: Selected arm: MEDIUM
+    if (distance <= 10) {
+        armLength = "SHORT";
     }
+    if (distance <= 20) {
+        armLength = "MEDIUM";
+    }
+    if (distance > 20) {
+        armLength = "LONG";
+    }
+
+    System.out.println("Selected arm: " + armLength);
+  }
 }`
     }
   ]);
