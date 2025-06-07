@@ -274,7 +274,7 @@ boolean tooFast = (speed > 3);  // true since 5 > 3`}
           <BooleanExpressionsEditor />
         </div>
         <br />
-        <h2>Summary</h2>
+        <h2>Recap</h2>
         <ul className="my-4">
           <li>A boolean is either true or false.</li>
           <li>Comparison operators (==, !=, &lt;, &gt;, &lt;=, &gt;=) give a boolean result.</li>
