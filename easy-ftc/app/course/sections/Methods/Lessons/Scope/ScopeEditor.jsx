@@ -21,7 +21,7 @@ public class Main {
   }
   
   public static void setUp() {
-    String name = "Alice";
+    String name = "Tina";
     int age = 15;
   }
   
@@ -33,7 +33,7 @@ public class Main {
   
   public static void updateDetails() {
     // TODO: Fix the scope issue so this method can update the same name and age
-    name = "Bob";
+    name = "David";
     age = 18;
   }
 }
@@ -41,9 +41,9 @@ public class Main {
 /*
 Expected Output:
 
-Name: Alice
+Name: Tina
 Age: 15
-Name: Bob
+Name: David
 Age: 18
 */
 `
