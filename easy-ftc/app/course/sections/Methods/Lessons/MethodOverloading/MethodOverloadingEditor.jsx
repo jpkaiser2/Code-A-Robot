@@ -8,7 +8,7 @@ export default function ReturnValuesEditor() {
     {
       id: '1',
       name: 'Main.java',
-      content: `public class Greeting {
+      content: `public class Main {
   // 1. Write a greet method with no parameters
   // It should print: "Hello!"
   // 2. Write a greet method that takes a String name
