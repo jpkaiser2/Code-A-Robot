@@ -63,11 +63,11 @@ const questions = [
     question: "What will this code print?\n```java\npublic static void main(String[] args) {\n    sayHi();\n    sayHi();\n}\n\npublic static void sayHi() {\n    System.out.println(\"Hi!\");\n}\n```",
     options: [
       "Hi!",
-      "Hi!\nHi!",
+      "Hi! Hi!",
       "sayHi",
       "Nothing is printed"
     ],
-    answer: "Hi!\nHi!",
+    answer: "Hi! Hi!",
   },
   {
     question: "True or False: You can reuse a method multiple times in your program.",
