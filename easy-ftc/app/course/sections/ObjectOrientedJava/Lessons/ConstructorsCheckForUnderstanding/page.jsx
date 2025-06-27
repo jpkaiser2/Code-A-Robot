@@ -10,14 +10,14 @@ export const metadata = {
 
 const questions = [
   {
-    question: "What will this code print?\n```java\npublic class Robot {\n    String name;\n    \n    public Robot(String n) {\n        name = n;\n    }\n\n    public void sayName() {\n        System.out.println(\"My name is \" + name);\n    }\n\n    public static void main(String[] args) {\n        Robot r = new Robot(\"Jeff\");\n        r.sayName();\n    }\n}```",
+    question: "What will this code print?\n```java\npublic class Robot {\n    String name;\n    \n    public Robot(String n) {\n        name = n;\n    }\n\n    public void sayName() {\n        System.out.println(\"My name is \" + name);\n    }\n\n    public static void main(String[] args) {\n        Robot r = new Robot(\"Joe\");\n        r.sayName();\n    }\n}```",
     options: [
       "My name is null",
-      "My name is Jeff",
+      "My name is Joe",
       "name",
       "Compilation error"
     ],
-    answer: "My name is Jeff"
+    answer: "My name is Joe"
   },
   {
     question: "Which of the following correctly defines a constructor for a class named `Team` that takes a `String teamName`?",
