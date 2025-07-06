@@ -4,6 +4,15 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Global manual section name mapping
+const sectionNames = [
+  { name: 'Basic*Java', slug: '/course/sections/basicJava/lessons/helloWorld' },
+  { name: 'Object-Oriented*Java', slug: '/course/sections/ObjectOrientedJava/Lessons/ObjectsClasses' },
+  { name: 'Methods', slug: '/course/sections/Methods/Lessons/IntroToMethods' },
+  { name: 'Logic*&*Iteration', slug: '/course/sections/LogicIteration/lessons/BooleanExpressions' },
+  { name: 'Arrays*&*ArrayLists', slug: '/course/sections/ArrayArrayList/Lessons/IntroToArrays' },
+];
+
 export default async function LessonLayout({ children, currentLessonPoints }) {
   const supabase = await createClient();
 
@@ -58,33 +67,19 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
   const prevLesson = currentLessonIndex > 0 ? filteredLessons[currentLessonIndex - 1] : null;
   const nextLesson = currentLessonIndex < filteredLessons.length - 1 ? filteredLessons[currentLessonIndex + 1] : null;
 
-  // Get all sections for navigation
-  const { data: sections } = await supabase
-    .from('lessons')
-    .select('*')
-    .order('unlock_at', { ascending: true });
-
-  // Get unique sections and their first lessons
-  const sectionMap = sections?.reduce((acc, lesson) => {
-    const section = lesson.slug.split('/')[3];
-    if (!acc[section]) {
-      acc[section] = {
-        name: section,
-        firstLesson: lesson,
-        isCurrentSection: section === currentSection
-      };
-    }
+  // Always use the global sectionNames array for section navigation
+  const sectionMap = sectionNames.reduce((acc, section) => {
+    acc[section.name] = {
+      name: section.name,
+      firstLesson: { slug: section.slug },
+      isCurrentSection: section.name === currentSection
+    };
     return acc;
-  }, {}) || {};
+  }, {});
 
   // Helper function to format section names
   const formatSectionName = (name) => {
-    return name
-      .replace(/([A-Z])/g, ' $1') // Add space before capital letters
-      .trim()
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
+    return name.replace(/\*/g, ' ').trim();
   };
 
   return (
