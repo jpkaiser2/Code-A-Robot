@@ -21,9 +21,47 @@ export default function Arrays() {
           By the end of this lesson, you'll be able to:
         </p>
         <ul className="my-4">
-          <li>Use <code>for</code> and <code>while</code> loops to access and process data in arrays</li>
+          <li>Use <code>for</code>, <code>while</code>, and <code>foreach</code> loops to access and process data in arrays</li>
+          <li>Understand how array indexes work</li>
           <li>Avoid common errors like going out of bounds</li>
           <li>Recognize and apply common patterns like printing, summing, and finding the maximum value</li>
+          <li>Know when to use different loop types, including enhanced for loops for simple array traversal</li>
+        </ul>
+
+        <br />
+        <h2>What Does It Mean to Traverse an Array?</h2>
+        <p>
+          Traversing an array means going through each element in the array one by one, usually using a loop.
+          You can traverse from the beginning to the end, from the end to the beginning, or even skip certain elements depending on your loop setup.
+        </p>
+        <p>
+          When we say "traverse," we just mean:
+        </p>
+        <ul className="my-4">
+          <li>"Go through each index of the array and do something with the values."</li>
+        </ul>
+
+        <br />
+        <h2>What is an Index Again?</h2>
+        <p>
+          An index is the position number of an item in an array.
+        </p>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`int[] nums = {10, 20, 30, 40};
+// Indexes:   0   1   2   3`}
+          </SyntaxHighlighter>
+        </div>
+        <p>
+          In Java, indexes always start at 0.
+        </p>
+        <p>
+          So:
+        </p>
+        <ul className="my-4">
+          <li><code>nums[0]</code> is 10</li>
+          <li><code>nums[2]</code> is 30</li>
+          <li>The last index is always <code>array.length - 1</code></li>
         </ul>
 
         <br />
@@ -183,6 +221,148 @@ System.out.println(Arrays.toString(data)); // prints: [2, 4, 6, 8]`}
         </p>
 
         <br />
+        <h2>Traversing an Array Backwards</h2>
+        <p>
+          You can also go from the last element to the first
+        </p>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`int[] values = {10, 20, 30, 40};
+
+for (int i = values.length - 1; i >= 0; i--) {
+    System.out.println("Reverse: " + values[i]);
+}`}
+          </SyntaxHighlighter>
+        </div>
+        <ul className="my-4">
+          <li>Starts at the last index: <code>values.length - 1</code></li>
+          <li>Goes down to index 0</li>
+        </ul>
+
+        <br />
+        <h2>Using an Enhanced For Loop (foreach)</h2>
+        <p>
+          In Java, you can use an enhanced for loop (also called a foreach loop) to traverse an array without using indexes.
+        </p>
+        <h3>Basic Syntax:</h3>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`for (type variable : array) {
+    // use variable
+}`}
+          </SyntaxHighlighter>
+        </div>
+        <p>
+          It automatically goes through every element in the array from start to end.
+        </p>
+        <h3>Example:</h3>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`int[] nums = {5, 10, 15};
+
+for (int num : nums) {
+    System.out.println(num);
+}`}
+          </SyntaxHighlighter>
+        </div>
+        <p>What this does:</p>
+        <ul className="my-4">
+          <li>First, <code>num</code> is 5</li>
+          <li>Then <code>num</code> is 10</li>
+          <li>Then <code>num</code> is 15</li>
+        </ul>
+        <p>
+          You don't need to use <code>nums[i]</code> or manage an index—Java handles it for you.
+        </p>
+
+        <h3>When Should You Use a foreach Loop?</h3>
+        <p>Use a foreach loop when:</p>
+        <ul className="my-4">
+          <li>You want to read each value in the array</li>
+          <li>You don't need the index (position) of each element</li>
+          <li>You don't plan to modify the original array elements</li>
+        </ul>
+
+        <h3>Good Example:</h3>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`String[] names = {"Winnie", "Willow", "Wilbur"};
+
+for (String name : names) {
+    System.out.println("Hello, " + name + "!");
+}`}
+          </SyntaxHighlighter>
+        </div>
+
+        <h3>But Be Careful: You Can't Access the Index</h3>
+        <p>You can't tell which position you're on:</p>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`for (int num : nums) {
+    // You cannot do: System.out.println("Index: " + ???);
+}`}
+          </SyntaxHighlighter>
+        </div>
+        <p>
+          If you need to know the index (like for displaying "Score 0:", "Score 1:"), you should stick with a normal for loop.
+        </p>
+
+        <h3>Also: You Can't Modify the Array</h3>
+        <p>This won't work the way you might expect:</p>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`for (int num : nums) {
+    num = num * 2;  // This does NOT change the array
+}`}
+          </SyntaxHighlighter>
+        </div>
+        <p>
+          To modify an array (like doubling every value), use a regular for loop with indexing:
+        </p>
+        <div className="bg-muted p-4 rounded-md overflow-x-auto">
+          <SyntaxHighlighter language="java" style={vscDarkPlus}>
+{`for (int i = 0; i < nums.length; i++) {
+    nums[i] = nums[i] * 2;  // This changes the array
+}`}
+          </SyntaxHighlighter>
+        </div>
+
+        <h3>Side-by-Side Comparison</h3>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse border border-gray-300">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-4 py-2">Goal</th>
+                <th className="border border-gray-300 px-4 py-2">Use for loop</th>
+                <th className="border border-gray-300 px-4 py-2">Use foreach loop</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2">Read every value</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2">Modify values in array</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2">Access index</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+              </tr>
+              <tr>
+                <td className="border border-gray-300 px-4 py-2">Simpler syntax</td>
+                <td className="border border-gray-300 px-4 py-2">❌</td>
+                <td className="border border-gray-300 px-4 py-2">✅</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <br />
         <h2>Try It Yourself!</h2>
         <p>Complete the code as described by the comments.</p>
         <div className="h-[600px] mt-4">
@@ -192,11 +372,21 @@ System.out.println(Arrays.toString(data)); // prints: [2, 4, 6, 8]`}
 
         <h2>Recap</h2>
         <ul className="my-4">
-          <li>Loops + arrays = efficient code that scales</li>
-          <li><code>for</code> loops are best when processing every element</li>
-          <li>Use <code>.length</code> to avoid hardcoding array size</li>
-          <li>Avoid using <code>&lt;=</code> with <code>.length</code>—it goes out of bounds</li>
-          <li>Common patterns: print, sum, find max/min, modify values</li>
+          <li>Traversing an array = looping through each value one by one</li>
+          <li>Arrays start at index 0 and end at <code>array.length - 1</code></li>
+          <li>Use <code>.length</code> to avoid hardcoding sizes</li>
+          <li>Use <code>&lt;</code>, not <code>&lt;=</code>, to avoid going out of bounds</li>
+          <li><code>for</code> loops are great for full control (indexing, modifying)</li>
+          <li><code>while</code> loops are good when conditions change dynamically</li>
+          <li><code>foreach</code> loops are best for simple read-only access</li>
+          <li>Common patterns:</li>
+          <ul className="ml-6 my-2">
+            <li>Print values</li>
+            <li>Sum values</li>
+            <li>Find max/min</li>
+            <li>Modify each value</li>
+            <li>Traverse backwards</li>
+          </ul>
         </ul>
 
         <div className="mt-10 flex justify-center">
