@@ -11,6 +11,7 @@ const sectionNames = [
   { name: 'Methods', slug: '/course/sections/Methods/Lessons/IntroToMethods' },
   { name: 'Logic*&*Iteration', slug: '/course/sections/LogicIteration/lessons/BooleanExpressions' },
   { name: 'Arrays*&*ArrayLists', slug: '/course/sections/ArrayArrayList/Lessons/IntroToArrays' },
+  { name: 'Getting*Ready*for*FTC*Programming', slug: '/course/sections/GettingReady/Lessons/Options' },
 ];
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
