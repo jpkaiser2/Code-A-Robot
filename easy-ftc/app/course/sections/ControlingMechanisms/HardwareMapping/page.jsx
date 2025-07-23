@@ -34,7 +34,7 @@ export default function HardwareMapping() {
         <br />
         <h2>Configuration Name</h2>
         <p>
-          Every piece of hardware in the FTC robot configuration (on the Robot Controller app) is given a name. For example, you might create a configuration with:
+          Every piece of hardware in the FTC robot configuration (on the Driver Station app) is given a name. For example, you might create a configuration with:
         </p>
         <ul className="my-4">
           <li>Motor on port 0 named <code>"left_drive"</code></li>
@@ -45,9 +45,9 @@ export default function HardwareMapping() {
         </p>
 
         <br />
-        <h2>How to Hardware Map Using the Robot Controller App</h2>
+        <h2>How to Hardware Map Using the Driver Station App</h2>
         <ol className="my-4 list-decimal list-inside">
-          <li>Open the Robot Controller App on your Control Hub or Robot Controller phone.</li>
+          <li>Open the Driver Station App on your Control Hub or phone.</li>
           <li>Tap the three-dot menu (︙) in the upper right corner.</li>
           <li>Select <strong>Configure Robot</strong>.</li>
           <li>Tap <strong>New Configuration</strong>.</li>
@@ -57,6 +57,8 @@ export default function HardwareMapping() {
           <li>When you're done, tap <strong>Save</strong>, and give your configuration a name like <code>"CompetitionBot"</code>.</li>
           <li>Tap <strong>Activate</strong> to use this configuration.</li>
         </ol>
+
+        <p>For more information on how to configure hardware in the Driver Station App, see the <a href="https://ftc-docs.firstinspires.org/en/latest/hardware_and_software_configuration/configuring/getting_started/getting-started.html#creating-a-configuration" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'underline' }}>FTC Docs</a>.</p>
         <p>
           <span role="img" aria-label="pin">📌</span> These names are what you’ll use in your Java code when calling <code>hardwareMap.get()</code>.
         </p>
