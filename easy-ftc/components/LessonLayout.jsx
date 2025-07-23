@@ -12,7 +12,7 @@ const sectionNames = [
   { name: 'Logic*&*Iteration', slug: '/course/sections/LogicIteration/lessons/BooleanExpressions' },
   { name: 'Arrays*&*ArrayLists', slug: '/course/sections/ArrayArrayList/Lessons/IntroToArrays' },
   { name: 'Getting*Ready*for*FTC*Programming', slug: '/course/sections/GettingReady/Lessons/Options' },
-  { name: 'OpModes', slug: '/course/sections/BasicRobotProject/Lessons/FirstOpMode' },
+  { name: 'OpModes*&*Gamepads', slug: '/course/sections/BasicRobotProject/Lessons/FirstOpMode' },
   { name: 'Controlling*Robot*Mechanisms', slug: '/course/sections/ControlingMechanisms/Lessons/HardwareMapping' },
 ];
 
