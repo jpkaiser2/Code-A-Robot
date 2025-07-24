@@ -14,6 +14,7 @@ const sectionNames = [
   { name: 'Getting*Ready*for*FTC*Programming', slug: '/course/sections/GettingReady/Lessons/Options' },
   { name: 'OpModes*&*Gamepads', slug: '/course/sections/BasicRobotProject/Lessons/FirstOpMode' },
   { name: 'Controlling*Robot*Mechanisms', slug: '/course/sections/ControlingMechanisms/Lessons/HardwareMapping' },
+  { name: 'Sensors*&*Feedback', slug: '/course/sections/Sensors/Lessons/Encoders' },
 ];
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
