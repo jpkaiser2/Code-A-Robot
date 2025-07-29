@@ -15,6 +15,7 @@ const sectionNames = [
   { name: 'OpModes*&*Gamepads', slug: '/course/sections/BasicRobotProject/Lessons/FirstOpMode' },
   { name: 'Controlling*Robot*Mechanisms', slug: '/course/sections/ControlingMechanisms/Lessons/HardwareMapping' },
   { name: 'Sensors*&*Feedback', slug: '/course/sections/Sensors/Lessons/Encoders' },
+  { name: 'Autonomous*Programming', slug: '/course/sections/Auto/Lessons/IntroToAuto' },
 ];
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
