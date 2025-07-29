@@ -103,7 +103,30 @@ double distance = sensor.getDistance(DistanceUnit.CM);
           <li>You can nest <code>if</code> statements if needed, but don’t overcomplicate logic.</li>
           <li>Make sure your decision logic is tested and reliable before using it in competition.</li>
         </ul>
+        <br />
+        <h2>Running Different Autos Based on Alliance &amp; Position</h2>
+        <p>
+          A helpful way to organize your autonomous programs is based on your starting alliance color and position by creating separate files for each routine.
+          This makes your code easier to manage and helps tournament officials quickly see which auto you’re using.
+        </p>
 
+        <h3>Why Use Separate Auto Files?</h3>
+        <p>
+          While it’s possible to select routines with code or dashboard input, it is recommended that each autonomous routine is clearly separated.
+          This makes it easier to keep track of autos during testing and competition. It also negates the need for using the gamepad before the match starts.
+        </p>
+
+        <h3>Example File Structure</h3>
+        <p>You can create different files like:</p>
+        <ul className="my-4">
+          <li><code>RedLeftAuto.java</code></li>
+          <li><code>RedRightAuto.java</code></li>
+          <li><code>BlueLeftAuto.java</code></li>
+          <li><code>BlueRightAuto.java</code></li>
+        </ul>
+        <p>
+          Each of these should extend <code>LinearOpMode</code> and have its own <code>@Autonomous</code> name.
+        </p>
         <br />
         <h2>Recap</h2>
         <ul className="my-4">
