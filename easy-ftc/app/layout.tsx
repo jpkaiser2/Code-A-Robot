@@ -2,6 +2,7 @@ import { EnvVarWarning } from "@/components/env-var-warning";
 import HeaderAuth from "@/components/header-auth";
 import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { Geist } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next"
 import Link from "next/link";
 import "./globals.css";
 
