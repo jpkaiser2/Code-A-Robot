@@ -2,7 +2,7 @@ import LessonLayout from "@/components/LessonLayout";
 import LessonCompleteButton from "@/components/LessonCompleteButton";
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import ReturnValuesEditor from "./returnValuesEditor";
+import ReturnValuesEditor from "./ReturnValuesEditor";
 
 export const metadata = {
   title: "Return Values & Method Headers | EasyFTC",
