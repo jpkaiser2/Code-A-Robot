@@ -12,7 +12,7 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "EasyAsFTC - Learn FTC Robotics",
+  title: "Code-A-Robot | Learn FTC Robotics",
   description: "Your platform for learning FTC robotics programming and concepts.",
 };
 
@@ -34,7 +34,7 @@ export default function RootLayout({
             <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
               <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
                 <div className="flex flex-col">
-                  <Link href={"/"} className="font-semibold text-lg">EasyAsFTC</Link>
+                  <Link href={"/"} className="font-semibold text-lg">Code-A-Robot</Link>
                   <a 
                     href="https://www.jacobkaiserman.com"
                     target="_blank" 
@@ -52,7 +52,7 @@ export default function RootLayout({
             </div>
 
             <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16 bg-muted/20">
-              <p>© 2025 EasyAsFTC, not affiliated with FIRST®</p>
+              <p>© 2025 Code-A-Robot, not affiliated with FIRST®</p>
             </footer>
           </div>
         </main>

@@ -20,9 +20,7 @@ export default async function Home() {
           <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
             Learn Java.
             <br />
-            Program Robots.
-            <br/>
-            EasyAsFTC.
+            Code-A-Robot.
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
@@ -156,7 +154,7 @@ export default async function Home() {
             Ready to elevate your FTC team?
           </h2>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join students already learning with EasyAsFTC. Start your robotics programming journey today.
+            Join students already learning with Code-A-Robot. Start your robotics programming journey today.
           </p>
           <Link
             href="/sign-up"
