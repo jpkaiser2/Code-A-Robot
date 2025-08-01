@@ -376,6 +376,9 @@ export default async function Home() {
                   {/* Robot Body */}
                   <rect x="75" y="120" width="150" height="120" rx="15" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="2"/>
                   
+                  {/* Code Brackets on Body */}
+                  <text x="150" y="185" fontSize="32" fill="hsl(var(--primary))" fontFamily="monospace" fontWeight="bold" textAnchor="middle">&lt;/&gt;</text>
+                  
                   {/* Robot Head */}
                   <rect x="100" y="80" width="100" height="60" rx="10" fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth="2"/>
                   
