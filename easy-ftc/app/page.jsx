@@ -147,6 +147,325 @@ export default async function Home() {
         </div>
       </div>
 
+      {/* Interactive Editor Showcase */}
+      <div className="px-6 py-20 bg-gradient-to-b from-muted/20 to-background">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              🚀 Featured Tool
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Code Like a Pro with Our Interactive Editor
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Experience hands-on learning with our browser-based Java editor. Write, compile, and test your code 
+              instantly with real-time feedback and syntax highlighting.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left side - Features */}
+            <div className="space-y-8">
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Instant Code Execution</h3>
+                  <p className="text-muted-foreground">
+                    Run your Java code immediately in the browser with our integrated compiler. No setup required.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Smart Error Detection</h3>
+                  <p className="text-muted-foreground">
+                    Get real-time syntax highlighting and error detection to catch mistakes as you type.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
+                  <svg className="w-4 h-4 text-purple-500" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold mb-2">Practice What You Learn</h3>
+                  <p className="text-muted-foreground">
+                    Apply your knowledge with interactive coding challenges and projects at the end of each lesson.
+                  </p>
+                </div>
+              </div>
+
+              <div className="pt-4">
+                <Link
+                  href="/sign-up"
+                  className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium transition-all duration-200 hover:scale-105"
+                >
+                  Try the Editor Now
+                  <span className="ml-2">→</span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Right side - Screenshot */}
+            <div className="relative">
+              <div className="relative bg-[#1E1E1E] rounded-lg shadow-2xl overflow-hidden border border-gray-700 w-[600px]">
+                {/* Toolbar */}
+                <div className="flex items-center justify-between px-4 py-2 bg-[#1e1f1c] border-b border-gray-700">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-sm text-gray-400">JAVA</div>
+                    <div className="text-sm text-yellow-400">• Modified</div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">
+                      Run Code
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex">
+                  {/* Left side - Editor */}
+                  <div className="flex flex-col w-2/3">
+                    {/* File Tab */}
+                    <div className="flex bg-[#1e1f1c] border-b border-gray-700">
+                      <div className="px-4 py-2 text-sm bg-[#272822] text-white border-r border-gray-700 flex items-center space-x-2">
+                        <span>AutonomousOpMode.java</span>
+                        <span className="text-yellow-400">•</span>
+                      </div>
+                    </div>
+
+                    {/* Code editor mockup with line numbers */}
+                    <div className="bg-[#272822] flex">
+                      {/* Line numbers */}
+                      <div className="bg-[#2F3129] px-3 py-4 text-xs text-gray-500 font-mono border-r border-gray-600">
+                        <div>1</div>
+                        <div>2</div>
+                        <div>3</div>
+                        <div>4</div>
+                        <div>5</div>
+                        <div>6</div>
+                        <div>7</div>
+                        <div>8</div>
+                        <div>9</div>
+                        <div>10</div>
+                        <div>11</div>
+                        <div>12</div>
+                        <div>13</div>
+                        <div>14</div>
+                        <div>15</div>
+                        <div>16</div>
+                        <div>17</div>
+                        <div>18</div>
+                        <div>19</div>
+                        <div>20</div>
+                        <div>21</div>
+                        <div>22</div>
+                        <div>23</div>
+                        <div>24</div>
+                        <div>25</div>
+                        <div>26</div>
+                      </div>
+                      
+                      {/* Code content */}
+                      <div className="p-4 font-mono text-sm flex-1">
+                        <div className="space-y-1">
+                          <div className="text-[#75715E]">// Robot autonomous movement example</div>
+                          <div className="text-[#66D9EF]">public class <span className="text-[#A6E22E]">AutonomousOpMode</span> extends <span className="text-[#A6E22E]">LinearOpMode</span> {'{'}</div>
+                          <div className="ml-4">
+                            <div className="text-[#A6E22E]">@Override</div>
+                            <div className="text-[#66D9EF]">public void <span className="text-[#A6E22E]">runOpMode</span>() {'{'}</div>
+                            <div className="ml-4 space-y-1">
+                              <div className="text-[#75715E]">// Initialize hardware</div>
+                              <div className="text-[#F8F8F2]">DcMotor leftMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"left_motor"</span>);</div>
+                              <div className="text-[#F8F8F2]">DcMotor rightMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"right_motor"</span>);</div>
+                              <div className="text-[#F8F8F2]">waitForStart();</div>
+                              <div className="text-[#75715E]">// Move forward for 2 seconds</div>
+                              <div className="text-[#F8F8F2]">leftMotor.setPower(<span className="text-[#AE81FF]">0.5</span>);</div>
+                              <div className="text-[#F8F8F2]">rightMotor.setPower(<span className="text-[#AE81FF]">0.5</span>);</div>
+                              <div className="text-[#F8F8F2]">sleep(<span className="text-[#AE81FF]">2000</span>);</div>
+                            </div>
+                            <div className="text-[#66D9EF]">{'}'}</div>
+                          </div>
+                          <div className="text-[#66D9EF]">{'}'}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status Bar */}
+                    <div className="flex items-center justify-between px-4 py-1 bg-[#1e1f1c] border-t border-gray-700 text-xs text-gray-400">
+                      <div className="flex items-center space-x-4">
+                        <div>UTF-8</div>
+                        <div>JAVA</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Resize Handle */}
+                  <div className="w-1 bg-gray-700"></div>
+
+                  {/* Right side - Terminal */}
+                  <div className="flex-1 border-l border-gray-700 flex flex-col">
+                    <div className="bg-[#1e1f1c] px-4 py-2 border-b border-gray-700 flex justify-between items-center">
+                      <div className="flex space-x-4">
+                        <button className="px-3 py-1 rounded bg-[#37373D] text-white text-sm">
+                          Terminal
+                        </button>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-blue-500"></div>
+                          <span className="text-xs text-gray-400">Running...</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-[#272822] p-3 font-mono text-xs flex-1 min-h-[200px]">
+                      <div className="space-y-1">
+                        <div className="text-green-400">
+                          <span className="text-gray-500">$ </span>
+                          AutonomousOpMode.java
+                        </div>
+                        <div className="text-gray-300">✓ Compilation successful</div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/20 rounded-full blur-xl"></div>
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-blue-500/10 rounded-full blur-xl"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Robot Showcase Section */}
+      <div className="px-6 py-20 bg-gradient-to-b from-background to-muted/10">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              🤖 Build & Program
+            </Badge>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              From Code to Competition
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              See how your Java skills translate into real robot control. Our curriculum covers everything needed to get started programming robots.
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Robot SVG Illustration */}
+            <div className="flex justify-center mb-12">
+              <div className="relative">
+                <svg width="300" height="300" viewBox="0 0 300 300" className="drop-shadow-2xl">
+                  {/* Robot Body */}
+                  <rect x="75" y="120" width="150" height="120" rx="15" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  
+                  {/* Robot Head */}
+                  <rect x="100" y="80" width="100" height="60" rx="10" fill="hsl(var(--card))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  
+                  {/* Eyes */}
+                  <circle cx="125" cy="105" r="8" fill="hsl(var(--primary))"/>
+                  <circle cx="175" cy="105" r="8" fill="hsl(var(--primary))"/>
+                  <circle cx="125" cy="105" r="4" fill="white"/>
+                  <circle cx="175" cy="105" r="4" fill="white"/>
+                  
+                  {/* Mouth/Speaker */}
+                  <rect x="140" y="120" width="20" height="8" rx="4" fill="hsl(var(--muted-foreground))"/>
+                  
+                  {/* Arms */}
+                  <rect x="45" y="140" width="30" height="15" rx="7" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  <rect x="225" y="140" width="30" height="15" rx="7" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  
+                  {/* Wheels */}
+                  <circle cx="100" cy="260" r="20" fill="hsl(var(--muted-foreground))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  <circle cx="200" cy="260" r="20" fill="hsl(var(--muted-foreground))" stroke="hsl(var(--border))" strokeWidth="2"/>
+                  <circle cx="100" cy="260" r="12" fill="hsl(var(--background))"/>
+                  <circle cx="200" cy="260" r="12" fill="hsl(var(--background))"/>
+                  
+                  
+                  
+                  {/* LED Strips */}
+                  <rect x="80" y="200" width="140" height="4" rx="2" fill="hsl(var(--primary))" fillOpacity="0.6"/>
+                  
+                  {/* Antenna */}
+                  <line x1="150" y1="80" x2="150" y2="60" stroke="hsl(var(--muted-foreground))" strokeWidth="2"/>
+                  <circle cx="150" cy="60" r="3" fill="hsl(var(--primary))"/>
+                </svg>
+                
+                {/* Floating Code Elements */}
+                <div className="absolute -top-8 -left-16 bg-[#272822] text-[#A6E22E] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                  robot.move()
+                </div>
+                <div className="absolute top-16 -right-20 bg-[#272822] text-[#66D9EF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                  setPower(0.8)
+                </div>
+                <div className="absolute bottom-8 -left-20 bg-[#272822] text-[#E6DB74] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                  "autonomous"
+                </div>
+                <div className="absolute bottom-16 -right-16 bg-[#272822] text-[#AE81FF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                  sleep(1000)
+                </div>
+              </div>
+            </div>
+
+            {/* Feature Grid */}
+            <div className="grid md:grid-cols-3 gap-8 mt-16">
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-blue-500/20 transition-colors">
+                  <svg className="w-8 h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Autonomous Movement</h3>
+                <p className="text-muted-foreground">
+                  Program your robot to navigate and complete tasks independently using sensors and timers.
+                </p>
+              </div>
+
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-green-500/20 transition-colors">
+                  <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Sensor Integration</h3>
+                <p className="text-muted-foreground">
+                  Learn to use encoders, IMUs, and other sensors for precise robot control.
+                </p>
+              </div>
+
+              <div className="text-center group">
+                <div className="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-purple-500/20 transition-colors">
+                  <svg className="w-8 h-8 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-semibold mb-3">Build a Strong Foundation</h3>
+                <p className="text-muted-foreground">
+                  Develop a strong foundation of Java programming skills for robotics. Our curriculum prepares you to learn more advanced concepts on your own.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="px-6 py-20">
         <div className="max-w-4xl mx-auto text-center">
