@@ -17,13 +17,13 @@ export default async function Home() {
             ✨ New: Interactive Java Editor
           </Badge>
           
-          <h1 className="text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-b from-foreground to-foreground/70 bg-clip-text text-transparent">
             Learn Java.
             <br />
             Code-A-Robot.
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Master robotics programming with hands-on Java lessons designed specifically for 
             <span className="text-foreground font-medium"> FTC teams</span>. 
             Build, code, and compete with confidence.
@@ -51,10 +51,10 @@ export default async function Home() {
       <div className="px-6 py-20 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4">
               Everything you need to succeed in FTC
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
               Created for new FTC teams to learn the basics of Java programming for robotics.
             </p>
           </div>
@@ -154,18 +154,18 @@ export default async function Home() {
             <Badge variant="secondary" className="mb-4">
               🚀 Featured Tool
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
               Code Like a Pro with Our Interactive Editor
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
               Experience hands-on learning with our browser-based Java editor. Write, compile, and test your code 
               instantly with real-time feedback and syntax highlighting.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left side - Features */}
-            <div className="space-y-8">
+            <div className="space-y-8 order-2 lg:order-1">
               <div className="flex items-start space-x-4">
                 <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center flex-shrink-0 mt-1">
                   <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
@@ -220,27 +220,27 @@ export default async function Home() {
             </div>
 
             {/* Right side - Screenshot */}
-            <div className="relative">
-              <div className="relative bg-[#1E1E1E] rounded-lg shadow-2xl overflow-hidden border border-gray-700 w-[600px]">
+            <div className="relative order-1 lg:order-2">
+              <div className="relative bg-[#1E1E1E] rounded-lg shadow-2xl overflow-hidden border border-gray-700 w-full max-w-[600px] mx-auto">
                 {/* Toolbar */}
                 <div className="flex items-center justify-between px-4 py-2 bg-[#1e1f1c] border-b border-gray-700">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-sm text-gray-400">JAVA</div>
-                    <div className="text-sm text-yellow-400">• Modified</div>
+                  <div className="flex items-center space-x-2 sm:space-x-4">
+                    <div className="text-xs sm:text-sm text-gray-400">JAVA</div>
+                    <div className="text-xs sm:text-sm text-yellow-400">• Modified</div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm">
+                    <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 sm:px-3 rounded text-xs sm:text-sm">
                       Run Code
                     </button>
                   </div>
                 </div>
 
-                <div className="flex">
+                <div className="flex flex-col lg:flex-row">
                   {/* Left side - Editor */}
-                  <div className="flex flex-col w-2/3">
+                  <div className="flex flex-col lg:w-2/3">
                     {/* File Tab */}
                     <div className="flex bg-[#1e1f1c] border-b border-gray-700">
-                      <div className="px-4 py-2 text-sm bg-[#272822] text-white border-r border-gray-700 flex items-center space-x-2">
+                      <div className="px-3 sm:px-4 py-2 text-xs sm:text-sm bg-[#272822] text-white border-r border-gray-700 flex items-center space-x-2">
                         <span>AutonomousOpMode.java</span>
                         <span className="text-yellow-400">•</span>
                       </div>
@@ -249,7 +249,7 @@ export default async function Home() {
                     {/* Code editor mockup with line numbers */}
                     <div className="bg-[#272822] flex">
                       {/* Line numbers */}
-                      <div className="bg-[#2F3129] px-3 py-4 text-xs text-gray-500 font-mono border-r border-gray-600">
+                      <div className="bg-[#2F3129] px-2 sm:px-3 py-4 text-xs text-gray-500 font-mono border-r border-gray-600">
                         <div>1</div>
                         <div>2</div>
                         <div>3</div>
@@ -279,17 +279,17 @@ export default async function Home() {
                       </div>
                       
                       {/* Code content */}
-                      <div className="p-4 font-mono text-sm flex-1">
+                      <div className="p-2 sm:p-4 font-mono text-xs sm:text-sm flex-1">
                         <div className="space-y-1">
                           <div className="text-[#75715E]">// Robot autonomous movement example</div>
                           <div className="text-[#66D9EF]">public class <span className="text-[#A6E22E]">AutonomousOpMode</span> extends <span className="text-[#A6E22E]">LinearOpMode</span> {'{'}</div>
-                          <div className="ml-4">
+                          <div className="ml-2 sm:ml-4">
                             <div className="text-[#A6E22E]">@Override</div>
                             <div className="text-[#66D9EF]">public void <span className="text-[#A6E22E]">runOpMode</span>() {'{'}</div>
-                            <div className="ml-4 space-y-1">
+                            <div className="ml-2 sm:ml-4 space-y-1">
                               <div className="text-[#75715E]">// Initialize hardware</div>
-                              <div className="text-[#F8F8F2]">DcMotor leftMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"left_motor"</span>);</div>
-                              <div className="text-[#F8F8F2]">DcMotor rightMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"right_motor"</span>);</div>
+                              <div className="text-[#F8F8F2] break-all">DcMotor leftMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"left_motor"</span>);</div>
+                              <div className="text-[#F8F8F2] break-all">DcMotor rightMotor = hardwareMap.get(DcMotor.class, <span className="text-[#E6DB74]">"right_motor"</span>);</div>
                               <div className="text-[#F8F8F2]">waitForStart();</div>
                               <div className="text-[#75715E]">// Move forward for 2 seconds</div>
                               <div className="text-[#F8F8F2]">leftMotor.setPower(<span className="text-[#AE81FF]">0.5</span>);</div>
@@ -313,10 +313,10 @@ export default async function Home() {
                   </div>
 
                   {/* Resize Handle */}
-                  <div className="w-1 bg-gray-700"></div>
+                  <div className="w-full h-1 lg:w-1 lg:h-auto bg-gray-700"></div>
 
                   {/* Right side - Terminal */}
-                  <div className="flex-1 border-l border-gray-700 flex flex-col">
+                  <div className="flex-1 lg:border-l border-gray-700 flex flex-col">
                     <div className="bg-[#1e1f1c] px-4 py-2 border-b border-gray-700 flex justify-between items-center">
                       <div className="flex space-x-4">
                         <button className="px-3 py-1 rounded bg-[#37373D] text-white text-sm">
@@ -331,7 +331,7 @@ export default async function Home() {
                       </div>
                     </div>
 
-                    <div className="bg-[#272822] p-3 font-mono text-xs flex-1 min-h-[200px]">
+                    <div className="bg-[#272822] p-3 font-mono text-xs flex-1 min-h-[150px] lg:min-h-[200px]">
                       <div className="space-y-1">
                         <div className="text-green-400">
                           <span className="text-gray-500">$ </span>
@@ -360,10 +360,10 @@ export default async function Home() {
             <Badge variant="secondary" className="mb-4">
               🤖 Build & Program
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
               From Code to Competition
             </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
               See how your Java skills translate into real robot control. Our curriculum covers everything needed to get started programming robots.
             </p>
           </div>
@@ -371,8 +371,8 @@ export default async function Home() {
           <div className="relative">
             {/* Robot SVG Illustration */}
             <div className="flex justify-center mb-12">
-              <div className="relative">
-                <svg width="300" height="300" viewBox="0 0 300 300" className="drop-shadow-2xl">
+              <div className="relative w-full max-w-sm mx-auto">
+                <svg width="100%" height="300" viewBox="0 0 300 300" className="drop-shadow-2xl w-full h-auto max-w-[300px] mx-auto">
                   {/* Robot Body */}
                   <rect x="75" y="120" width="150" height="120" rx="15" fill="hsl(var(--muted))" stroke="hsl(var(--border))" strokeWidth="2"/>
                   
@@ -412,16 +412,16 @@ export default async function Home() {
                 </svg>
                 
                 {/* Floating Code Elements */}
-                <div className="absolute -top-8 -left-16 bg-[#272822] text-[#A6E22E] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                <div className="hidden sm:block absolute -top-8 -left-16 bg-[#272822] text-[#A6E22E] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
                   robot.move()
                 </div>
-                <div className="absolute top-16 -right-20 bg-[#272822] text-[#66D9EF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                <div className="hidden sm:block absolute top-16 -right-20 bg-[#272822] text-[#66D9EF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
                   setPower(0.8)
                 </div>
-                <div className="absolute bottom-8 -left-20 bg-[#272822] text-[#E6DB74] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                <div className="hidden sm:block absolute bottom-8 -left-20 bg-[#272822] text-[#E6DB74] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
                   "autonomous"
                 </div>
-                <div className="absolute bottom-16 -right-16 bg-[#272822] text-[#AE81FF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
+                <div className="hidden sm:block absolute bottom-16 -right-16 bg-[#272822] text-[#AE81FF] px-3 py-2 rounded-lg text-sm font-mono border border-gray-600 shadow-lg">
                   sleep(1000)
                 </div>
               </div>
@@ -472,10 +472,10 @@ export default async function Home() {
       {/* CTA Section */}
       <div className="px-6 py-20">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
             Ready to elevate your FTC team?
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join students already learning with Code-A-Robot. Start your robotics programming journey today.
           </p>
           <Link
