@@ -4,6 +4,7 @@ import { hasEnvVars } from "@/utils/supabase/check-env-vars";
 import { Geist } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next"
 import Link from "next/link";
+import Script from "next/script";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL
@@ -29,6 +30,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.className} dark`} suppressHydrationWarning>
       <body className="bg-background text-foreground">
+
         <main className="min-h-screen flex flex-col items-center">
           <div className="flex-1 w-full flex flex-col items-center">
             <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16 bg-background/80 backdrop-blur-sm sticky top-0 z-50">

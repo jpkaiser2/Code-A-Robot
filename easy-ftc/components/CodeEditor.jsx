@@ -1,11 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import AceEditor from 'react-ace';
 import 'ace-builds/src-noconflict/mode-java';
 import 'ace-builds/src-noconflict/theme-monokai';
 import 'ace-builds/src-noconflict/ext-language_tools';
-import JSZip from 'jszip';
 
 export default function CodeEditor({
   files = [],
@@ -15,23 +14,86 @@ export default function CodeEditor({
   onStdinChange,
 }) {
   const editorRef = useRef(null);
+  const consoleRef = useRef(null);
+  const outputRef = useRef(null);
+  
   const [activeFile, setActiveFile] = useState(files[0]?.id || null);
   const [isDirty, setIsDirty] = useState({});
-  const [activeTab, setActiveTab] = useState('output');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [result, setResult] = useState(null);
-  const [submissionToken, setSubmissionToken] = useState(null);
-  const pollingInterval = useRef(null);
-  const [terminalHistory, setTerminalHistory] = useState([]);
-  const [currentInput, setCurrentInput] = useState('');
-  const [isWaitingForInput, setIsWaitingForInput] = useState(false);
-  const inputRef = useRef(null);
+  const [cheerpjReady, setCheerpjReady] = useState(false);
   const [editorWidth, setEditorWidth] = useState(500);
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
   const dragStartWidth = useRef(0);
 
+  // Define helper functions first
+  const clearConsole = useCallback(() => {
+    if (consoleRef.current) {
+      consoleRef.current.textContent = '';
+    }
+  }, []);
+
+  const clearOutput = useCallback(() => {
+    if (outputRef.current) {
+      const cheerpjDisplay = document.getElementById('cheerpjDisplay');
+      if (cheerpjDisplay) {
+        cheerpjDisplay.innerHTML = '';
+      }
+    }
+  }, []);
+
+  const extractMainClass = useCallback((code) => {
+    const packageMatch = code.match(/package\s+([^;]+);/);
+    const classMatch = code.match(/public\s+class\s+(\w+)/);
+    
+    if (!classMatch) {
+      return 'Main';
+    }
+    
+    const className = classMatch[1];
+    
+    if (packageMatch) {
+      const packageName = packageMatch[1].trim();
+      return `${packageName}.${className}`;
+    }
+    
+    return className;
+  }, []);
+
+  // Initialize CheerpJ
+  useEffect(() => {
+    const initializeCheerpJ = async () => {
+      try {
+        // Load CheerpJ script if not already loaded
+        if (!window.cheerpjInit) {
+          const script = document.createElement('script');
+          script.src = 'https://cjrtnc.leaningtech.com/3.0/cj3loader.js';
+          script.onload = async () => {
+            await window.cheerpjInit({ status: 'none' });
+            if (outputRef.current) {
+              window.cheerpjCreateDisplay(-1, -1, outputRef.current);
+            }
+            setCheerpjReady(true);
+          };
+          document.head.appendChild(script);
+        } else {
+          await window.cheerpjInit({ status: 'none' });
+          if (outputRef.current) {
+            window.cheerpjCreateDisplay(-1, -1, outputRef.current);
+          }
+          setCheerpjReady(true);
+        }
+      } catch (error) {
+        console.error('Failed to initialize CheerpJ:', error);
+        setError('Failed to initialize CheerpJ');
+      }
+    };
+
+    initializeCheerpJ();
+  }, []);
+
+  // Configure editor when it's ready
   useEffect(() => {
     if (editorRef.current) {
       const editor = editorRef.current.editor;
@@ -56,15 +118,6 @@ export default function CodeEditor({
     }
   }, []);
 
-  // Cleanup polling on unmount
-  useEffect(() => {
-    return () => {
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-      }
-    };
-  }, []);
-
   const handleChange = (newValue) => {
     setIsDirty(prev => ({ ...prev, [activeFile]: true }));
     if (onFileChange) {
@@ -79,165 +132,70 @@ export default function CodeEditor({
     }
   };
 
-  const handleStop = async () => {
-    if (submissionToken) {
-      try {
-        await fetch('/api/judge0', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            token: submissionToken,
-            action: 'cancel'
-          }),
-        });
-      } catch (err) {
-        console.error('Error stopping code:', err);
-      }
-    }
-    if (pollingInterval.current) {
-      clearInterval(pollingInterval.current);
-      pollingInterval.current = null;
-    }
-    setLoading(false);
-    setSubmissionToken(null);
-  };
+  const handleRun = useCallback(async () => {
+    if (!cheerpjReady || loading) return;
 
-  const pollResults = async (token) => {
-    try {
-      const response = await fetch(`/api/judge0?token=${token}`);
-      if (!response.ok) {
-        throw new Error(`Judge0 error: ${response.status}`);
-      }
-      const data = await response.json();
-      
-      if (!data || !data.status) {
-        throw new Error('Invalid response from Judge0');
-      }
-
-      if (data.status.id > 2) {
-        setResult(data);
-        setLoading(false);
-        setSubmissionToken(null);
-        if (pollingInterval.current) {
-          clearInterval(pollingInterval.current);
-          pollingInterval.current = null;
-        }
-      }
-    } catch (err) {
-      console.error('Polling error:', err);
-      setError(err.message);
-      setLoading(false);
-      setSubmissionToken(null);
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-        pollingInterval.current = null;
-      }
-    }
-  };
-
-  const handleRun = async () => {
     const activeFileData = files.find(f => f.id === activeFile);
     if (!activeFileData) return;
 
     setLoading(true);
     setError('');
-    setResult(null);
-    setSubmissionToken(null);
+    clearConsole();
+    clearOutput();
 
     try {
-      // Create a zip file containing all Java files
-      const zip = new JSZip();
+      // Save all files to CheerpJ's virtual filesystem
+      const encoder = new TextEncoder();
       
-      // Add each file to the zip with its proper name
-      files.forEach(file => {
-        zip.file(file.name, file.content);
-      });
-
-      // Generate the zip file
-      const zipBlob = await zip.generateAsync({ type: 'base64' });
-
-      const response = await fetch('/api/judge0', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          source_code: zipBlob,
-          stdin: stdin,
-          language_id: 62, // Java
-          is_zip: true
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `Judge0 error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setSubmissionToken(data.token);
+      // Find the main class file (file containing main method)
+      let mainClassFile = files.find(file => 
+        file.content.includes('public static void main')
+      );
       
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-      }
-      pollingInterval.current = setInterval(() => pollResults(data.token), 1000);
-    } catch (err) {
-      setError(err.message);
-      setLoading(false);
-      if (pollingInterval.current) {
-        clearInterval(pollingInterval.current);
-        pollingInterval.current = null;
-      }
-    }
-  };
-
-  // Add new terminal history entry
-  const addToTerminalHistory = (type, content) => {
-    setTerminalHistory(prev => [...prev, { type, content, timestamp: new Date() }]);
-  };
-
-  // Handle terminal input submission
-  const handleTerminalInput = (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      if (currentInput.trim()) {
-        addToTerminalHistory('input', currentInput);
-        if (onStdinChange) {
-          onStdinChange(currentInput);
+      if (!mainClassFile) {
+        if (consoleRef.current) {
+          consoleRef.current.textContent += 'Error: No main method found in any file.\n';
         }
-        setCurrentInput('');
+        setLoading(false);
+        return;
       }
-    }
-  };
 
-  // Update terminal when output changes
-  useEffect(() => {
-    if (result && result.stdout) {
-      addToTerminalHistory('output', result.stdout);
-      // Check if the program is waiting for input
-      if (result.stdout.includes('Enter')) {
-        setIsWaitingForInput(true);
+      // Save all files to the virtual filesystem
+      for (const file of files) {
+        window.cheerpjAddStringFile(`/str/${file.name}`, encoder.encode(file.content));
       }
-    }
-    if (result && result.stderr) {
-      addToTerminalHistory('error', result.stderr);
-    }
-    if (result && result.compile) {
-      addToTerminalHistory('compile', result.compile);
-    }
-  }, [result]);
 
-  // Focus input when waiting for input
-  useEffect(() => {
-    if (isWaitingForInput && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isWaitingForInput]);
+      // Compile all Java files
+      const classPath = '/app/tools.jar:/files/';
+      const javaFiles = files.map(f => `/str/${f.name}`);
+      
+      const compileResult = await window.cheerpjRunMain(
+        'com.sun.tools.javac.Main',
+        classPath,
+        ...javaFiles,
+        '-d',
+        '/files/',
+        '-Xlint'
+      );
 
-  // Clear terminal history when starting new execution
-  useEffect(() => {
-    if (loading) {
-      setTerminalHistory([]);
+      // If compilation successful, run the program
+      if (compileResult === 0) {
+        const mainClass = extractMainClass(mainClassFile.content);
+        await window.cheerpjRunMain(mainClass, classPath);
+      } else {
+        if (consoleRef.current) {
+          consoleRef.current.textContent += 'Compilation failed. Check the console for details.\n';
+        }
+      }
+    } catch (error) {
+      console.error('Error running Java code:', error);
+      if (consoleRef.current) {
+        consoleRef.current.textContent += `Error: ${error}\n`;
+      }
+    } finally {
+      setTimeout(() => setLoading(false), 1000);
     }
-  }, [loading]);
+  }, [cheerpjReady, loading, files, activeFile, extractMainClass, clearConsole, clearOutput]);
 
   const activeFileData = files.find(f => f.id === activeFile);
 
@@ -283,21 +241,13 @@ export default function CodeEditor({
           )}
         </div>
         <div className="flex items-center space-x-2">
-          {loading ? (
-            <button
-              onClick={handleStop}
-              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors"
-            >
-              Stop
-            </button>
-          ) : (
-            <button
-              onClick={handleRun}
-              className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition-colors"
-            >
-              Run Code
-            </button>
-          )}
+          <button
+            onClick={handleRun}
+            disabled={!cheerpjReady || loading}
+            className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-2 px-4 rounded transition-colors"
+          >
+            {loading ? 'Running...' : 'Run Code'}
+          </button>
         </div>
       </div>
 
@@ -375,72 +325,40 @@ export default function CodeEditor({
 
         {/* Terminal Panel */}
         <div className="flex-1 border-l border-gray-700 flex flex-col">
-          <div className="bg-[#1e1f1c] px-4 py-2 border-b border-gray-700 flex justify-between items-center">
-            <div className="flex space-x-4">
-              <button
-                onClick={() => setActiveTab('output')}
-                className={`px-3 py-1 rounded ${
-                  activeTab === 'output'
-                    ? 'bg-[#37373D] text-white'
-                    : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                Terminal
-              </button>
+          {/* Console */}
+          <div className="flex-1 flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#1e1f1c] border-b border-gray-700">
+              <div className="flex items-center space-x-2">
+                <div className="text-sm text-gray-300">Console</div>
+              </div>
+              <div className="flex items-center space-x-2">
+                {loading && (
+                  <div className="flex items-center space-x-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                    <span className="text-sm text-gray-400">Running...</span>
+                  </div>
+                )}
+                <button
+                  onClick={clearConsole}
+                  className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded hover:bg-gray-700 transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              {loading && (
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                  <span className="text-sm text-gray-400">Running...</span>
-                </div>
-              )}
-            </div>
+            <pre
+              ref={consoleRef}
+              id="console"
+              className="flex-1 p-4 font-mono text-sm overflow-auto bg-[#272822] text-green-400 whitespace-pre-wrap"
+            />
           </div>
 
-          <div className="h-[600px] bg-[#272822] p-4 font-mono text-sm overflow-auto">
-            <div className="min-h-full flex flex-col">
-              <div className="flex-1">
-                {terminalHistory.length === 0 ? (
-                  <div className="text-gray-500">
-                    <span className="text-gray-500">$ </span>
-                    <span className="text-gray-400">Ready to run code...</span>
-                  </div>
-                ) : (
-                  terminalHistory.map((entry, index) => (
-                    <div key={index} className="mb-1">
-                      {entry.type === 'input' ? (
-                        <div className="text-green-400">
-                          <span className="text-gray-500">$ </span>
-                          {entry.content}
-                        </div>
-                      ) : entry.type === 'error' ? (
-                        <div className="text-red-400">{entry.content}</div>
-                      ) : entry.type === 'compile' ? (
-                        <div className="text-yellow-400">{entry.content}</div>
-                      ) : (
-                        <div className="text-gray-300 whitespace-pre-wrap">{entry.content}</div>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
-              {isWaitingForInput && (
-                <div className="flex items-center mt-2">
-                  <span className="text-gray-500 mr-2">$</span>
-                  <input
-                    ref={inputRef}
-                    type="text"
-                    value={currentInput}
-                    onChange={(e) => setCurrentInput(e.target.value)}
-                    onKeyDown={handleTerminalInput}
-                    className="flex-1 bg-transparent border-none outline-none text-green-400 font-mono"
-                    placeholder="Enter input..."
-                  />
-                </div>
-              )}
-            </div>
-          </div>
+          {/* Hidden Result - CheerpJ needs this for output */}
+          <div
+            ref={outputRef}
+            id="output"
+            style={{ display: 'none' }}
+          />
         </div>
       </div>
     </div>
