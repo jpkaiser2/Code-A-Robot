@@ -1,6 +1,6 @@
 # Code-A-Robot
 
-An interactive, web-based learning platform for FTC robotics programming. Code-A-Robot (codearobot.org) guides students through Java fundamentals, FTC-specific SDK features, and hands-on coding exercises—with in-browser compilation and execution.
+An interactive, web-based learning platform for FTC robotics programming. Code-A-Robot (codearobot.org) guides students through Java fundamentals, FTC-specific SDK features, and hands-on coding exercises with in-browser compilation and execution.
 <center>
 <img src="/easy-ftc/app/LogoTransparent.png">
 </center>
