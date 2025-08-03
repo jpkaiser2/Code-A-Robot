@@ -4,7 +4,7 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
 <center>
 <img src="/easy-ftc/app/LogoTransparent.png">
 </center>
----
+
 
 ## Features
 
@@ -20,7 +20,7 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
 - **Progress Tracking**  
   Track lesson completion and quiz performance.
 
----
+
 
 ## Tech Stack
 
@@ -32,7 +32,7 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
 - **Backend:** Supabase (PostgreSQL + Auth)  
 - **Hosting:** Vercel  
 
----
+
 
 ## Visit
 
