@@ -28,7 +28,7 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
 - **UI Library:** React  
 - **Styling:** Tailwind CSS  
 - **Editor:** AceEditor (`react-ace`)  
-- **Code Execution:** Judge0 API  
+- **Code Execution:** Cheerpj (see [SimpleJavaRunner](https://github.com/jpkaiser2/SimpleJavaRunner))
 - **Backend:** Supabase (PostgreSQL + Auth)  
 - **Hosting:** Vercel  
 
