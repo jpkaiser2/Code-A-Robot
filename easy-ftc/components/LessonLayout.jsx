@@ -73,12 +73,17 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
   const prevLesson = currentLessonIndex > 0 ? filteredLessons[currentLessonIndex - 1] : null;
   const nextLesson = currentLessonIndex < filteredLessons.length - 1 ? filteredLessons[currentLessonIndex + 1] : null;
 
+  // Calculate section progress based on completed lessons
+  const completedLessonsInSection = filteredLessons.filter(lesson => userPoints > lesson.unlock_at).length;
+  const sectionProgressPercentage = filteredLessons.length > 0 ? Math.round((completedLessonsInSection / filteredLessons.length) * 100) : 0;
+
   // Always use the global sectionNames array for section navigation
   const sectionMap = sectionNames.reduce((acc, section) => {
+    const sectionSlug = section.slug.split('/')[3]; // Extract section from slug
     acc[section.name] = {
       name: section.name,
       firstLesson: { slug: section.slug },
-      isCurrentSection: section.name === currentSection
+      isCurrentSection: sectionSlug === currentSection
     };
     return acc;
   }, {});
@@ -94,80 +99,152 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
         {children}
       </main>
       
-      <footer className="p-4 border-t mt-8">
-        <div className="w-full bg-muted/50 rounded-lg p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold">Course Navigation</h3>
-            <div className="flex gap-2">
-              {prevLesson && (
+      <footer className="p-6 border-t mt-8 bg-gradient-to-r from-background to-muted/10">
+        <div className="w-full bg-background/50 backdrop-blur-sm border border-border/50 rounded-xl p-6 shadow-sm">
+          {/* Header with navigation arrows */}
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h3 className="text-xl font-bold text-foreground">Course Navigation</h3>
+              <p className="text-sm text-muted-foreground mt-1 break-words">
+                {formatSectionName(currentSection)} • Lesson {currentLessonIndex + 1} of {filteredLessons.length}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              {prevLesson ? (
                 <Button
                   variant="outline"
-                  size="icon"
+                  size="sm"
                   asChild
-                  className="h-8 w-8"
+                  className="flex items-center gap-2 hover:bg-primary/10 transition-colors"
                 >
                   <Link href={prevLesson.slug}>
                     <ChevronLeft className="h-4 w-4" />
+                    Previous
                   </Link>
                 </Button>
+              ) : (
+                <Button variant="outline" size="sm" disabled className="flex items-center gap-2 opacity-50">
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
               )}
-              {nextLesson && (
+              {nextLesson ? (
                 <Button
-                  variant="outline"
-                  size="icon"
+                  size="sm"
                   asChild
-                  className="h-8 w-8"
+                  className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-colors"
                 >
                   <Link href={nextLesson.slug}>
+                    Next
                     <ChevronRight className="h-4 w-4" />
                   </Link>
+                </Button>
+              ) : (
+                <Button size="sm" disabled className="flex items-center gap-2 opacity-50">
+                  Next
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               )}
             </div>
           </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {filteredLessons.map((lesson) => {
-              const isCompleted = userPoints > lesson.unlock_at;
-              const isCurrentLesson = lesson.unlock_at === currentLessonPoints;
-              const isLocked = userPoints < lesson.unlock_at;
-              
-              return (
+
+          {/* Progress bar for current section */}
+          <div className="mb-6">
+            <div className="flex justify-between text-sm text-muted-foreground mb-2">
+              <span>Section Progress</span>
+              <span>{sectionProgressPercentage}% Complete ({completedLessonsInSection} of {filteredLessons.length})</span>
+            </div>
+            <div className="w-full bg-muted rounded-full h-2">
+              <div 
+                className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${sectionProgressPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+
+          {/* Current section lessons */}
+          <div className="mb-6">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
+              Current Section Lessons
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredLessons.map((lesson, index) => {
+                const isCompleted = userPoints > lesson.unlock_at;
+                const isCurrentLesson = lesson.unlock_at === currentLessonPoints;
+                const isLocked = userPoints < lesson.unlock_at;
+                
+                return (
+                  <Button
+                    key={lesson.id}
+                    variant={isCurrentLesson ? "default" : isCompleted ? "outline" : "secondary"}
+                    disabled={isLocked}
+                    asChild
+                    className={`
+                      h-auto min-h-[3rem] p-3 justify-start text-left transition-all duration-200 whitespace-normal
+                      ${isCompleted ? "bg-green-100/50 border-green-300/50 hover:bg-green-200/50 text-green-900 dark:bg-green-900/20 dark:border-green-700/50 dark:hover:bg-green-800/30 dark:text-green-100" : ""}
+                      ${isCurrentLesson ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20" : ""}
+                      ${isLocked ? "opacity-50 cursor-not-allowed bg-muted/50" : ""}
+                      ${!isLocked && !isCurrentLesson && !isCompleted ? "hover:bg-accent/50 hover:text-accent-foreground bg-muted/30" : ""}
+                    `}
+                  >
+                    <Link href={isLocked ? "#" : lesson.slug} className="w-full block">
+                      <div className="flex items-start gap-3">
+                        <div className={`
+                          flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mt-0.5
+                          ${isCompleted ? "bg-green-600/80 text-white dark:bg-green-500" : ""}
+                          ${isCurrentLesson ? "bg-primary-foreground/90 text-primary" : ""}
+                          ${isLocked ? "bg-muted-foreground/30 text-muted-foreground" : ""}
+                          ${!isLocked && !isCurrentLesson && !isCompleted ? "bg-primary/30 text-primary" : ""}
+                        `}>
+                          {isCompleted ? "✓" : isLocked ? "🔒" : index + 1}
+                        </div>
+                        <div className="flex-1 min-w-0 overflow-hidden">
+                          <div className="font-medium text-sm break-words leading-tight hyphens-auto">
+                            {lesson.title}
+                          </div>
+                          {isCurrentLesson && (
+                            <div className="text-xs opacity-75 mt-1">Currently viewing</div>
+                          )}
+                        </div>
+                      </div>
+                    </Link>
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* All sections navigation */}
+          <div className="pt-4 border-t">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
+              All Course Sections
+            </h4>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+              {Object.values(sectionMap).map((section) => (
                 <Button
-                  key={lesson.id}
-                  variant={isCurrentLesson ? "default" : isCompleted ? "outline" : "secondary"}
-                  disabled={isLocked}
+                  key={section.name}
+                  variant={section.isCurrentSection ? "default" : "outline"}
+                  size="sm"
                   asChild
                   className={`
-                    ${isCompleted ? "bg-muted/20 hover:bg-muted/40" : ""}
-                    ${isCurrentLesson ? "bg-primary" : ""}
-                    ${isLocked ? "opacity-50 cursor-not-allowed" : ""}
+                    h-auto min-h-[2.5rem] p-3 justify-start text-left transition-all duration-200 whitespace-normal
+                    ${section.isCurrentSection 
+                      ? "bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20" 
+                      : "bg-muted/30 hover:bg-accent/50 hover:text-accent-foreground border-border/50"
+                    }
                   `}
                 >
-                  <Link href={isLocked ? "#" : lesson.slug}>
-                    {lesson.title}
-                    {isLocked && " 🔒"}
-                    {isCompleted && " ✓"}
+                  <Link href={section.firstLesson.slug} className="w-full block">
+                    <div className="text-xs font-medium leading-tight break-words hyphens-auto">
+                      {formatSectionName(section.name)}
+                    </div>
+                    {section.isCurrentSection && (
+                      <div className="text-xs opacity-75 mt-1">Current section</div>
+                    )}
                   </Link>
                 </Button>
-              );
-            })}
-          </div>
-          <div className="flex flex-wrap gap-2 pt-2 border-t">
-            {Object.values(sectionMap).map((section) => (
-              <Button
-                key={section.name}
-                variant={section.isCurrentSection ? "default" : "outline"}
-                size="sm"
-                asChild
-                className={`
-                  ${section.isCurrentSection ? "bg-primary" : "bg-muted/20 hover:bg-muted/40"}
-                `}
-              >
-                <Link href={section.firstLesson.slug}>
-                  {formatSectionName(section.name)}
-                </Link>
-              </Button>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </footer>
