@@ -12,10 +12,10 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
   Step-by-step lessons covering Java basics, hardware mapping, sensors, and autonomous programming.
 
 - **Live Code Editor**  
-  Write and run FTC Java code directly in your browser using AceEditor.
+  Write and run FTC Java code directly in your browser using a custom editor.
 
 - **Instant Feedback**  
-  Code is compiled and executed via a Judge0 backend, so you see results in real time.
+  Code is compiled and executed via Cheerpj, so you see results in real time.
 
 - **Progress Tracking**  
   Track lesson completion and quiz performance.
@@ -28,7 +28,7 @@ An interactive, web-based learning platform for FTC robotics programming. Code-A
 - **UI Library:** React  
 - **Styling:** Tailwind CSS  
 - **Editor:** AceEditor (`react-ace`)  
-- **Code Execution:** Judge0 API  
+- **Code Execution:** Cheerpj (see [SimpleJavaRunner](https://github.com/jpkaiser2/SimpleJavaRunner))
 - **Backend:** Supabase (PostgreSQL + Auth)  
 - **Hosting:** Vercel  
 
