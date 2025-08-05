@@ -6,7 +6,7 @@ export const metadata = {
 };
 
 export default function RoadRunnerIntro() {
-  const lessonPoints = 75;
+  const lessonPoints = 76;
 
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>

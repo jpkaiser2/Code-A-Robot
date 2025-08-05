@@ -16,7 +16,7 @@ const sectionNames = [
   { name: 'Controlling*Robot*Mechanisms', slug: '/course/sections/ControlingMechanisms/Lessons/HardwareMapping' },
   { name: 'Sensors*&*Feedback', slug: '/course/sections/Sensors/Lessons/Encoders' },
   { name: 'Autonomous*Programming', slug: '/course/sections/Auto/Lessons/IntroToAuto' },
-  { name: 'RoadRunner', slug: '/course/sections/RoadRunner/Lessons/Intro' },
+  { name: 'Road*Runner', slug: '/course/sections/RoadRunner/Lessons/Intro' },
 ];
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
