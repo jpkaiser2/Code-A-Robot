@@ -73,6 +73,27 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
   const prevLesson = currentLessonIndex > 0 ? filteredLessons[currentLessonIndex - 1] : null;
   const nextLesson = currentLessonIndex < filteredLessons.length - 1 ? filteredLessons[currentLessonIndex + 1] : null;
 
+  // Handle cross-section navigation for edge cases
+  let crossSectionPrevLesson = null;
+  let crossSectionNextLesson = null;
+
+  if (!prevLesson || !nextLesson) {
+    // Get all lessons across all sections
+    const allLessons = sectionLessons || [];
+    const currentLessonGlobalIndex = allLessons.findIndex(lesson => lesson.unlock_at === currentLessonPoints);
+    
+    if (!prevLesson && currentLessonGlobalIndex > 0) {
+      crossSectionPrevLesson = allLessons[currentLessonGlobalIndex - 1];
+    }
+    
+    if (!nextLesson && currentLessonGlobalIndex < allLessons.length - 1) {
+      crossSectionNextLesson = allLessons[currentLessonGlobalIndex + 1];
+    }
+  }
+
+  const finalPrevLesson = prevLesson || crossSectionPrevLesson;
+  const finalNextLesson = nextLesson || crossSectionNextLesson;
+
   // Calculate section progress based on completed lessons
   const completedLessonsInSection = filteredLessons.filter(lesson => userPoints > lesson.unlock_at).length;
   const sectionProgressPercentage = filteredLessons.length > 0 ? Math.round((completedLessonsInSection / filteredLessons.length) * 100) : 0;
@@ -87,6 +108,9 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
     };
     return acc;
   }, {});
+
+  // Get the proper section display name from the mapping
+  const currentSectionDisplayName = Object.values(sectionMap).find(section => section.isCurrentSection)?.name || currentSection;
 
   // Helper function to format section names
   const formatSectionName = (name) => {
@@ -106,20 +130,23 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
             <div>
               <h3 className="text-xl font-bold text-foreground">Course Navigation</h3>
               <p className="text-sm text-muted-foreground mt-1 break-words">
-                {formatSectionName(currentSection)} • Lesson {currentLessonIndex + 1} of {filteredLessons.length}
+                {formatSectionName(currentSectionDisplayName)} • Lesson {currentLessonIndex + 1} of {filteredLessons.length}
               </p>
             </div>
             <div className="flex gap-3">
-              {prevLesson ? (
+              {finalPrevLesson ? (
                 <Button
                   variant="outline"
                   size="sm"
                   asChild
                   className="flex items-center gap-2 hover:bg-primary/10 transition-colors"
                 >
-                  <Link href={prevLesson.slug}>
+                  <Link href={finalPrevLesson.slug}>
                     <ChevronLeft className="h-4 w-4" />
                     Previous
+                    {crossSectionPrevLesson && (
+                      <span className="text-xs opacity-75 ml-1">(Section)</span>
+                    )}
                   </Link>
                 </Button>
               ) : (
@@ -128,14 +155,17 @@ export default async function LessonLayout({ children, currentLessonPoints }) {
                   Previous
                 </Button>
               )}
-              {nextLesson ? (
+              {finalNextLesson ? (
                 <Button
                   size="sm"
                   asChild
                   className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-colors"
                 >
-                  <Link href={nextLesson.slug}>
+                  <Link href={finalNextLesson.slug}>
                     Next
+                    {crossSectionNextLesson && (
+                      <span className="text-xs opacity-75 ml-1">(Section)</span>
+                    )}
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 </Button>
