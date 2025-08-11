@@ -10,106 +10,157 @@ export const metadata = {
 
 const questions = [
   {
-    question: "In Road Runner, what is the main purpose of a trajectory?",
+    question: "What does a trajectory represent in Road Runner 1.0?",
     options: [
-      "To define the robot's physical hardware",
-      "To describe a precise movement path for the robot",
-      "To set motor power manually",
-      "To create a driver-controlled program"
+      "A set of motor power values",
+      "A smooth, calculated path that respects robot limits",
+      "A single turn action",
+      "A hardware mapping configuration"
     ],
-    answer: "To describe a precise movement path for the robot",
+    answer: "A smooth, calculated path that respects robot limits",
   },
   {
-    question: "Which Road Runner class is typically used to build trajectories?",
+    question: "Which class stores the robot's position and orientation?",
     options: [
-      "TrajectoryBuilder",
-      "DriveConstants",
-      "OpMode",
-      "LinearDrive"
+      "Vector2d",
+      "Pose3d",
+      "Pose2d",
+      "Trajectory"
     ],
-    answer: "TrajectoryBuilder",
+    answer: "Pose2d",
   },
   {
-    question: "What is the main difference between a trajectory and a sequence in Road Runner?",
+    question: "What units does Road Runner 1.0 use for distances?",
     options: [
-      "A trajectory only controls speed, while a sequence only controls turns",
-      "A trajectory is a single continuous path, while a sequence can chain multiple paths and actions",
-      "A trajectory is for autonomous and a sequence is for teleop",
-      "A sequence requires encoders, while a trajectory does not"
+      "Centimeters",
+      "Inches",
+      "Feet",
+      "Meters"
     ],
-    answer: "A trajectory is a single continuous path, while a sequence can chain multiple paths and actions",
+    answer: "Inches",
   },
   {
-    question: "Which method is used to start building a trajectory from the robot's current position?",
+    question: "What units does Road Runner 1.0 use for angles?",
     options: [
-      "trajectoryBuilder()",
-      "beginTrajectory()",
-      "startTrajectory()",
-      "newTrajectory()"
+      "Degrees",
+      "Gradians",
+      "Radians",
+      "Turns"
     ],
-    answer: "trajectoryBuilder()",
+    answer: "Radians",
   },
   {
-    question: "In the example code, what does `.forward(20)` do?",
+    question: "Which method begins creating a trajectory from a starting pose?",
     options: [
-      "Moves the robot forward for 20 seconds",
-      "Moves the robot forward 20 inches",
-      "Moves the robot forward until encoder counts reach 20",
-      "Moves the robot forward at 20% speed"
+      "drive.createPath(startPose)",
+      "drive.actionBuilder(startPose)",
+      "drive.buildTrajectory(startPose)",
+      "drive.poseEstimator(startPose)"
     ],
-    answer: "Moves the robot forward 20 inches",
+    answer: "drive.actionBuilder(startPose)",
   },
   {
-    question: "When using a trajectory sequence, which method is used to create it?",
+    question: "Which method moves the robot sideways to a specific field position?",
     options: [
-      "trajectorySequenceBuilder()",
-      "sequenceBuilder()",
-      "buildSequence()",
-      "createTrajectorySequence()"
+      ".splineTo()",
+      ".lineToY()",
+      ".turn()",
+      ".strafeTo()"
     ],
-    answer: "trajectorySequenceBuilder()",
+    answer: ".strafeTo()",
   },
   {
-    question: "What does `waitSeconds(2)` do when included in a trajectory sequence?",
+    question: "Which method rotates the robot in place?",
     options: [
-      "Pauses the robot for 2 seconds",
-      "Delays the start of the program by 2 seconds",
-      "Slows the robot down by half",
-      "Stops the motors permanently after 2 seconds"
+      ".turn()",
+      ".setTangent()",
+      ".rotateTo()",
+      ".pivot()"
     ],
-    answer: "Pauses the robot for 2 seconds",
+    answer: ".turn()",
   },
   {
-    question: "Why might you use trajectory sequences instead of individual trajectories?",
+    question: "What does `.setTangent(angleRad)` do?",
     options: [
-      "They are easier to tune for wheel slip",
-      "They allow you to chain multiple paths and actions without stopping",
-      "They automatically avoid obstacles",
-      "They require less code to declare hardware"
+      "Sets the robot's initial heading before autonomous",
+      "Sets the direction the next segment will be built from",
+      "Turns the robot by the given angle",
+      "Aligns the robot with a spline"
     ],
-    answer: "They allow you to chain multiple paths and actions without stopping",
+    answer: "Sets the direction the next segment will be built from",
   },
   {
-    question: "What method runs the trajectory or sequence on the robot?",
+    question: "Which method pauses movement for a set number of seconds?",
     options: [
-      "followPath()",
-      "runTrajectory()",
-      "followTrajectory() / followTrajectorySequence()",
-      "execute()"
+      ".stop()",
+      ".pause()",
+      ".waitSeconds()",
+      ".sleep()"
     ],
-    answer: "followTrajectory() / followTrajectorySequence()",
+    answer: ".waitSeconds()",
   },
   {
-    question: "If you want the robot to move in an arc instead of a straight line, which method could you use?",
+    question: "How do you run an Action so that code execution waits until it finishes?",
     options: [
-      "splineTo()",
-      "curveTo()",
-      "arcMove()",
-      "turnArc()"
+      "drive.run(path)",
+      "Actions.runBlocking(path)",
+      "drive.execute(path)",
+      "Actions.runAsync(path)"
     ],
-    answer: "splineTo()",
+    answer: "Actions.runBlocking(path)",
+  },
+  {
+    question: "What is the correct order when building a path?",
+    options: [
+      "Add segments → Build → Choose start pose → Run",
+      "Choose start pose → Initialize drive → Start builder → Add segments → Build → Run",
+      "Run → Choose start pose → Build → Add segments",
+      "Choose start pose → Add segments → Start builder → Run"
+    ],
+    answer: "Choose start pose → Initialize drive → Start builder → Add segments → Build → Run",
+  },
+  {
+    question: "What is the purpose of `.endTrajectory().fresh()`?",
+    options: [
+      "To reset the robot's pose to (0,0,0)",
+      "To continue building from the end of a previously built path",
+      "To create a fresh drive object",
+      "To clear the builder's movement queue"
+    ],
+    answer: "To continue building from the end of a previously built path",
+  },
+  {
+    question: "What should you do before expecting high accuracy in autonomous paths?",
+    options: [
+      "Test on a practice field",
+      "Tune your drive",
+      "Lower robot speed",
+      "Use only straight paths"
+    ],
+    answer: "Tune your drive",
+  },
+  {
+    question: "Which method moves in a smooth curve to a position with a set heading?",
+    options: [
+      ".lineToX()",
+      ".strafeTo()",
+      ".splineTo()",
+      ".turn()"
+    ],
+    answer: ".splineTo()",
+  },
+  {
+    question: "Why is getting the starting Pose2d correct important?",
+    options: [
+      "It makes the code compile",
+      "It ensures planned paths match the real field",
+      "It increases speed",
+      "It reduces battery usage"
+    ],
+    answer: "It ensures planned paths match the real field",
   }
 ];
+
 
 
 
