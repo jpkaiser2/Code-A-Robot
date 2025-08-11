@@ -5,7 +5,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import Quiz from "@/components/quiz";
 
 export const metadata = {
-  title: "Trajectories and Sequences Quiz | EasyFTC",
+  title: "Trajectories Quiz | EasyFTC",
 };
 
 const questions = [
@@ -179,7 +179,7 @@ export default function TrajectoriesAndSequencesQuiz() {
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
       <div>
-      <Quiz title="Trajectories and Sequences Quiz" questions={questions} />
+      <Quiz title="Trajectories Quiz" questions={questions} />
         <br/>
         <div className="mt-10 flex justify-center">
           <LessonCompleteButton lessonPoints={lessonPoints} />

@@ -5,7 +5,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 
 export const metadata = {
-  title: "Creating Trajectories and Sequences | EasyFTC",
+  title: "Creating Trajectories | EasyFTC",
 };
 
 export default function CreatingTrajectoriesAndSequences() {
@@ -15,7 +15,7 @@ export default function CreatingTrajectoriesAndSequences() {
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
       <div>
-        <h1>Creating Trajectories and Sequences</h1>
+        <h1>Creating Trajectories</h1>
 
         <p>By the end of this lesson, you will be able to:</p>
         <ul className="my-4">
