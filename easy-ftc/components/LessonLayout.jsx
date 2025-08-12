@@ -17,6 +17,7 @@ const sectionNames = [
   { name: 'Sensors*&*Feedback', slug: '/course/sections/Sensors/Lessons/Encoders' },
   { name: 'Autonomous*Programming', slug: '/course/sections/Auto/Lessons/IntroToAuto' },
   { name: 'Road*Runner', slug: '/course/sections/RoadRunner/Lessons/Intro' },
+  { name: 'Common*TeleOp*Programs', slug: '/course/sections/TeleOps/Lessons/Intro' },
 ];
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
