@@ -18,7 +18,10 @@ const sectionNames = [
   { name: 'Autonomous*Programming', slug: '/course/sections/Auto/Lessons/IntroToAuto' },
   { name: 'Road*Runner', slug: '/course/sections/RoadRunner/Lessons/Intro' },
   { name: 'Common*TeleOp*Programs', slug: '/course/sections/TeleOps/Lessons/Intro' },
+  { name: 'Next*Steps', slug: '/course/sections/EndOfCourse/Lessons/Conclusion' },
 ];
+
+
 
 export default async function LessonLayout({ children, currentLessonPoints }) {
   const supabase = await createClient();

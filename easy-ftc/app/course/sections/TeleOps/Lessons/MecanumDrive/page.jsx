@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default function MecanumDrive() {
-  const lessonPoints = 86; // Adjust points if needed
+  const lessonPoints = 86;
 
   return (
     <LessonLayout currentLessonPoints={lessonPoints}>
