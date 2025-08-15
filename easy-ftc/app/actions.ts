@@ -546,3 +546,74 @@ export const completeLessonAction = async (lessonPoints: number) => {
     };
   }
 };
+
+export const skipToRoboticsAction = async () => {
+  const supabase = await createClient();
+  
+  // Get current user
+  const {
+    data: { user },
+    error: userError
+  } = await supabase.auth.getUser();
+  
+  if (userError || !user) {
+    return performEncodedRedirect(encodedRedirect(
+      "error",
+      "/sign-in",
+      "You must be signed in to skip lessons"
+    ));
+  }
+
+  // Set user's points to 51 (start of Getting Ready for FTC section)
+  const roboticsStartPoints = 51;
+
+  try {
+    // Check if progress record exists
+    const { data: existingProgress } = await supabase
+      .from('progress')
+      .select('points')
+      .eq('user_id', user.id)
+      .single();
+
+    if (!existingProgress) {
+      // Create new progress record
+      const { error: insertError } = await supabase
+        .from('progress')
+        .insert([{ user_id: user.id, points: roboticsStartPoints }]);
+
+      if (insertError) {
+        return performEncodedRedirect(encodedRedirect(
+          "error",
+          "/dashboard",
+          `Failed to update progress: ${insertError.message}`
+        ));
+      }
+    } else {
+      // Update existing progress record
+      const { error: updateError } = await supabase
+        .from('progress')
+        .update({ points: roboticsStartPoints })
+        .eq('user_id', user.id);
+
+      if (updateError) {
+        return performEncodedRedirect(encodedRedirect(
+          "error",
+          "/dashboard",
+          `Failed to update progress: ${updateError.message}`
+        ));
+      }
+    }
+
+    return performEncodedRedirect(encodedRedirect(
+      "success",
+      "/dashboard",
+      "Successfully skipped to robotics lessons! You can now start with FTC-specific programming."
+    ));
+  } catch (e: any) {
+    return performEncodedRedirect(encodedRedirect(
+      "error",
+      "/dashboard",
+      `Error updating progress: ${e.message}`
+    ));
+  }
+};

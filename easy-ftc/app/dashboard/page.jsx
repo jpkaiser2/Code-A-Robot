@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { skipToRoboticsAction } from "@/app/actions";
 import Link from "next/link";
-import { ChevronRight, BookOpen, Trophy, Target, Clock } from "lucide-react";
+import { ChevronRight, BookOpen, Trophy, Target, Clock, Zap } from "lucide-react";
 
 // Course sections with their lessons count (approximate)
 const courseSections = [
@@ -80,6 +81,13 @@ export default async function DashboardPage() {
   const nextSection = sectionProgress.find(section => !section.isUnlocked);
   const nextMilestone = nextSection?.firstLesson;
 
+  // Check if user should see skip to robotics option
+  // Show if they haven't reached the "Getting Ready for FTC" section (points < 51)
+  // and haven't completed all Java sections
+  const roboticsStartPoints = 51;
+  const gettingReadySection = sectionProgress.find(section => section.slug === 'GettingReady');
+  const showSkipToRobotics = points < roboticsStartPoints && !gettingReadySection?.isUnlocked;
+
   return (
     <div className="flex-1 w-full flex flex-col gap-8 p-4 md:p-8 max-w-4xl mx-auto">
       <div>
@@ -140,6 +148,47 @@ export default async function DashboardPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Skip to Robotics Option */}
+      {showSkipToRobotics && (
+        <Card className="border-orange-200 bg-orange-50/50 dark:border-orange-800 dark:bg-orange-950/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-700 dark:text-orange-300">
+              <Zap className="h-5 w-5" />
+              Skip to Robotics Lessons
+            </CardTitle>
+            <CardDescription>
+              Already know Java? Jump straight to FTC robotics programming and start with hardware, sensors, and robot control.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-orange-100 dark:bg-orange-900/50 flex items-center justify-center">
+                  <Target className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Start with "Getting Ready for FTC"</p>
+                  <p className="text-xs text-muted-foreground">
+                    Skip Basic Java, OOP, Methods, Logic, and Arrays sections
+                  </p>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                ⚠️ This will set your progress to lesson 51. You can always go back to review Java concepts later.
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <form action={skipToRoboticsAction} className="w-full">
+              <Button type="submit" variant="outline" className="w-full border-orange-300 text-orange-700 hover:bg-orange-100 dark:border-orange-700 dark:text-orange-300 dark:hover:bg-orange-900/50">
+                <Zap className="h-4 w-4 mr-2" />
+                Skip to Robotics Programming
+              </Button>
+            </form>
+          </CardFooter>
+        </Card>
+      )}
 
       {/* Current Course */}
       <Card>
