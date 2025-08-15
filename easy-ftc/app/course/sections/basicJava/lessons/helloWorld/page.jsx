@@ -5,7 +5,7 @@ import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import HelloWorldEditor from "./HelloWorldEditor";
 
 export const metadata = {
-  title: "Hello World | EasyFTC",
+  title: "Hello World | Code-A-Robot",
 };
 
 export default function HelloWorldLesson() {
