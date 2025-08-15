@@ -147,8 +147,260 @@ export default async function Home() {
         </div>
       </div>
 
-      {/* Interactive Editor Showcase */}
+      {/* Course Roadmap Section */}
       <div className="px-6 py-20 bg-gradient-to-b from-muted/20 to-background">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge variant="secondary" className="mb-4">
+              🗺️ Learning Path
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-6">
+              Your Journey from Java to Robotics
+            </h2>
+            <p className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto">
+              Follow our carefully structured curriculum that takes you from programming fundamentals to building competition-ready robots.
+            </p>
+          </div>
+
+          <div className="relative">
+            {/* Course Sections with Timeline */}
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary via-primary to-primary/50 transform md:-translate-x-px"></div>
+
+              {/* Course Sections */}
+              <div className="space-y-12">
+                {/* Phase 1: Java Fundamentals */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-blue-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">1</span>
+                    </div>
+                    <div className="ml-12 md:ml-0 md:w-1/2 md:pr-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-blue-500 mb-2">Java Fundamentals</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Master the building blocks of programming with hands-on Java lessons.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>Basic Java Syntax</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>Object-Oriented Programming</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>Methods & Functions</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>Logic & Iteration</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span>Arrays & ArrayLists</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 2: FTC Setup */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-cyan-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">2</span>
+                    </div>
+                    <div className="ml-12 md:ml-auto md:w-1/2 md:pl-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-cyan-500 mb-2">Getting Ready for FTC</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Transition from Java to robotics programming with FTC-specific tools and concepts.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                            <span>Programming Options</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                            <span>Environment Setup</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                            <span>REV Control System</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-cyan-500 rounded-full"></div>
+                            <span>Hardware Overview</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 3: Robot Programming */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-indigo-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">3</span>
+                    </div>
+                    <div className="ml-12 md:ml-0 md:w-1/2 md:pr-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-indigo-500 mb-2">Robot Control Basics</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Learn to control robot hardware and create your first working programs.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                            <span>OpModes & Gamepads</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                            <span>Hardware Mapping</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                            <span>Motor Control</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                            <span>Servo Control</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 4: Advanced Control */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-amber-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">4</span>
+                    </div>
+                    <div className="ml-12 md:ml-auto md:w-1/2 md:pl-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-amber-500 mb-2">Sensors & Feedback</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Implement precise robot control using sensors and feedback systems.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span>Encoder Navigation</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span>IMU Sensors</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                            <span>Distance Sensors</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 5: Autonomous Programming */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-emerald-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">5</span>
+                    </div>
+                    <div className="ml-12 md:ml-0 md:w-1/2 md:pr-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-emerald-500 mb-2">Autonomous Programming</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Create sophisticated autonomous programs for competition success.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span>Path Planning</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span>Road Runner</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+                            <span>Competition Strategies</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Phase 6: Competition Ready */}
+                <div className="relative">
+                  <div className="flex items-center mb-6">
+                    <div className="absolute left-0 md:left-1/2 w-8 h-8 bg-rose-500 rounded-full border-4 border-background transform md:-translate-x-4 flex items-center justify-center z-10">
+                      <span className="text-white text-sm font-bold">6</span>
+                    </div>
+                    <div className="ml-12 md:ml-auto md:w-1/2 md:pl-8">
+                      <div className="bg-card p-6 rounded-xl border shadow-sm">
+                        <h3 className="text-xl font-bold text-rose-500 mb-2">TeleOp & Beyond</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Master driver-controlled programming and prepare for advanced concepts.
+                        </p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                            <span>TeleOp Programs</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                            <span>Drive Systems</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                            <span>Best Practices</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-rose-500 rounded-full"></div>
+                            <span>Next Steps</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Skip Option Callout - Separate from timeline */}
+            <div className="mt-16 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-950/20 dark:to-yellow-950/20 border border-orange-200 dark:border-orange-800 rounded-xl p-6 text-center relative z-10">
+              <div className="flex items-center justify-center mb-4">
+                <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-orange-700 dark:text-orange-300 mb-2">Already Know Java?</h3>
+              <p className="text-orange-600 dark:text-orange-400 mb-4">
+                Skip straight to robotics programming! Start with "Getting Ready for FTC" and jump into hardware control.
+              </p>
+              <div className="text-sm text-orange-500 dark:text-orange-500">
+                💡 This option is available on your dashboard after signing up
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Interactive Editor Showcase */}
+      <div className="px-6 py-20 bg-gradient-to-b from-background to-muted/20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">
