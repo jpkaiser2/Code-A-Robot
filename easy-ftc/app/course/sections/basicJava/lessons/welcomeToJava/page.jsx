@@ -16,55 +16,39 @@ export default function WelcomeToJavaLesson() {
         <h1>Welcome to Java</h1>
         
         <p>
-          Java is the foundation of programming in the FIRST Tech Challenge. It is the language 
-          that drives the robot, manages sensors, coordinates movement, and brings complex ideas 
-          to life on the field. But Java is more than just a tool for robotics—it is a language 
-          used across industries to build software systems, applications, and large-scale infrastructure.
+          Java is the foundation of programming in the FIRST Tech Challenge. It powers robots 
+          to manage sensors, coordinate movement, and turn ideas into action on the field. Java 
+          is also one of the most widely used programming languages in the world. It supports 
+          everything from small applications to large-scale infrastructure, making it a valuable 
+          skill that extends far beyond robotics.
         </p>
         
         <br />
         <p>
-          By learning Java through FTC, you're gaining experience with a language that is used in 
-          professional environments around the world. Java is known for its clarity, portability, 
-          and structure, making it an ideal language for building reliable code. These qualities are 
-          especially important in robotics, where consistency and precision matter.
+          Learning Java through FTC gives you experience with a professional, industry-standard 
+          language. Java is known for its clarity, portability, and structured approach to programming. 
+          These qualities are especially valuable in robotics, where reliability and precision 
+          are essential for successful competition performance.
         </p>
         
         <br />
         <p>
-          One of the core strengths of Java is its support for object-oriented programming (OOP). 
-          In FTC, robots are built from distinct physical components—motors, sensors, servos, etc. 
-          Object-oriented programming mirrors this physical structure in software. It allows you to 
-          group related data and behavior into reusable components, leading to more organized and 
-          scalable code.
+          Java supports object-oriented programming, which connects naturally to robotics development. 
+          FTC robots consist of distinct physical components like motors, sensors, and servos that 
+          work together as one system. Object-oriented programming lets you structure your code 
+          in organized and reusable ways that mirror how the robot is built.
         </p>
         
         <br />
         <p>
-          As you progress through this course, you'll gain an understanding of key OOP principles 
-          and see how they apply directly to the systems you build in FTC. These concepts aren't 
-          specific to robotics; they form the backbone of modern software development across nearly 
-          every domain.
+          This course teaches you Java's essential concepts while applying them directly to 
+          FTC robotics programming. You'll learn to build functional robot code and develop 
+          important skills in problem-solving, software design, and logical thinking. These skills 
+          will serve you throughout your educational and professional journey.
         </p>
         
         <br />
-        <p>
-          The goal of this course is not just to help you program a working robot. It's to give you 
-          a solid foundation in Java that you can carry beyond FTC to other engineering challenges, 
-          to future internships, and to university-level coursework. The skills you develop 
-          here—logical thinking, software design, problem-solving—are highly transferable and in demand.
-        </p>
-        
-        <br />
-        <p>
-          Whether or not you pursue computer science long-term, understanding how software works at 
-          this level will give you an edge. In FTC, it will help you write more efficient, adaptable 
-          code. Beyond FTC, it will help you think more clearly about systems, technology, and the way 
-          the digital world operates.
-        </p>
-        
-        <br />
-        <p>Let's begin!</p>
+        <p>Let's get started!</p>
         
         <div className="mt-10 flex justify-center">
           <LessonCompleteButton lessonPoints={lessonPoints} />
