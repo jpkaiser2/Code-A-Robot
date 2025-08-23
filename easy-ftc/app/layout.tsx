@@ -30,6 +30,20 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${geistSans.className} dark`} suppressHydrationWarning>
       <body className="bg-background text-foreground">
+        {/* Google Analytics */}
+        <Script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-T5QN771XB4"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-T5QN771XB4');
+          `}
+        </Script>
 
         <main className="min-h-screen flex flex-col items-center">
           <div className="flex-1 w-full flex flex-col items-center">
