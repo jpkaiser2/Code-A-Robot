@@ -248,6 +248,15 @@ export default function CodeEditor({
           >
             {loading ? 'Running...' : 'Run Code'}
           </button>
+          {!cheerpjReady && (
+            <button
+              onClick={() => window.location.reload()}
+              className="bg-gray-700 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded transition-colors"
+              title="Refresh the editor"
+            >
+              Refresh editor
+            </button>
+          )}
         </div>
       </div>
 
