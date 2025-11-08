@@ -1,19 +1,14 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
-type SearchParams = {
-  code?: string;
-  type?: string;
-  [key: string]: string | string[] | undefined;
-};
+type SearchParams = Record<string, string | string[] | undefined>;
 
-export default async function ForgotPasswordExchange({
-  searchParams,
-}: {
-  searchParams: SearchParams;
+export default async function ForgotPasswordExchange(props: {
+  searchParams: Promise<SearchParams>;
 }) {
-  // In App Router, this page runs on the server, so we can safely exchange the code here
-  const code = typeof searchParams?.code === "string" ? searchParams.code : undefined;
+  // In this project, pages receive `searchParams` as a Promise; await it for consistency
+  const sp = await props.searchParams;
+  const code = typeof sp?.code === "string" ? sp.code : undefined;
 
   if (!code) {
     // No code provided – send user to sign-in with a helpful error
