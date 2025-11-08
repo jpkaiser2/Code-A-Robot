@@ -116,10 +116,9 @@ export const forgotPasswordAction = async (formData: FormData) => {
   }
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    // After clicking the email link, Supabase will call /auth/callback with type=recovery
-    // We include a redirect_to param so our callback can route the user directly
-    // to the reset password page instead of generic settings.
-    redirectTo: `${origin}/auth/callback?redirect_to=/protected/reset-password&type=recovery`,
+    // Send user directly to the password recovery exchange route where we will
+    // exchange the code and then redirect to the reset-password page.
+    redirectTo: `${origin}/auth/forgot-password`,
   });
 
   if (error) {
