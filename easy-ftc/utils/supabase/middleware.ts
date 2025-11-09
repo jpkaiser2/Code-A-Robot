@@ -47,7 +47,7 @@ export const updateSession = async (request: NextRequest) => {
     // Always redirect authenticated users away from the reset password page to dashboard.
     // Business rule: password resets should only be performed before authentication.
     if (user && request.nextUrl.pathname.startsWith("/protected/reset-password")) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/settings", request.url));
     }
 
     // Protected routes
