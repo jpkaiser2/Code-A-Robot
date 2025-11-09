@@ -44,6 +44,20 @@ export const updateSession = async (request: NextRequest) => {
     console.log('Middleware - User Metadata:', user?.user_metadata);
     console.log('Middleware - Is Admin:', user?.user_metadata?.role === 'admin');
 
+    // If an authenticated user navigates to the reset password page without an explicit
+    // recovery allowance, send them to the dashboard. This prevents the post-signup
+    // misdirect where confirmed users land on reset-password.
+    if (request.nextUrl.pathname.startsWith("/protected/reset-password")) {
+      const allowReset = request.cookies.get("allow_reset");
+      if (user && !allowReset) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+      }
+      // Clear one-time allowance after first page load
+      if (allowReset) {
+        response.cookies.set("allow_reset", "", { path: "/protected/reset-password", maxAge: 0 });
+      }
+    }
+
     // Protected routes
     if (
       (request.nextUrl.pathname.startsWith("/dashboard") ||

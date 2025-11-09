@@ -28,11 +28,22 @@ export async function GET(request: Request) {
 
   // For password recovery, send the user to the reset password page
   if (type === "recovery") {
-    // Prefer an explicit redirect_to if provided (e.g., from resetPasswordForEmail)
-    if (redirectTo) {
-      return NextResponse.redirect(`${origin}${redirectTo}`);
-    }
-    return NextResponse.redirect(`${origin}/protected/reset-password?success=You%20can%20now%20set%20a%20new%20password`);
+    // Build destination
+    const destination = redirectTo
+      ? `${origin}${redirectTo}`
+      : `${origin}/protected/reset-password?success=You%20can%20now%20set%20a%20new%20password`;
+
+    // Set a short-lived cookie to allow visiting the reset page while authenticated
+    // This avoids redirecting to dashboard in middleware for legitimate recovery flows
+    const res = NextResponse.redirect(destination);
+    res.cookies.set("allow_reset", "1", {
+      path: "/protected/reset-password",
+      maxAge: 60 * 5, // 5 minutes
+      httpOnly: true,
+      sameSite: "lax",
+      secure: true,
+    });
+    return res;
   }
 
   // For email confirmation or invite flows, send to sign-in
