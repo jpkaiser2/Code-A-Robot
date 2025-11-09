@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+/*import { NextResponse } from 'next/server';
 
 export function middleware(request) {
   // Get the pathname from the request
@@ -24,4 +24,4 @@ export const config = {
     '/course/:path*',
     '/course/sections/:path*'
   ],
-}; 
+}; */
