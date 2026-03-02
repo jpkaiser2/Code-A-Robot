@@ -93,4 +93,32 @@ const defaultTestimonials = [
     quote:
       "I was overwhelmed when it came to learning JAVA, but Code-A-Robot gave me a great starting point and helped me get to a place where I could put code on one of my team's robots within a week. I have now completed the entire course and I now feel like I have the foundation to be a programmer. Overall, Code-A-Robot is amazing and I would recommend it to anyone who wants to be a coder.",
   },
+  {
+    id: 'rithik',
+    name: 'Rithik',
+    location: 'California',
+    quote:
+      "It's been great as it give me simple explanations and builds the foundation for FTC programming. I managed to learn this in 2-3 months and this helped this season as this is my first season.",
+  },
+  {
+    id: 'shannon',
+    name: 'Shannon',
+    location: 'Illinois',
+    quote:
+      "Code-A-Robot was very comprehensive and user friendly.  I liked how I could easily skip around and find what I need.This is a great tool for all team members, or anyone who is looking to learn a new skill.",
+  },
+  {
+    id: 'tingxuan',
+    name: 'Tingxuan',
+    location: 'California',
+    quote:
+      "It was very helpful learning the coding aspects (java), becuase previously I have had experience with coding contests like USACO, but coding a robot is very different; I have to combine both software and hardware aspects. I wanted to say thank you so much for making this website for us!",
+  },
+  {
+    id: 'dhruv',
+    name: 'Dhruv',
+    location: 'California',
+    quote:
+      "Code a robot has impacted our team heavily by bringing quality lessons that my team completed at their own place.",
+  },
 ];
