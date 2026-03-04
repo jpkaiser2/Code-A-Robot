@@ -119,6 +119,14 @@ const defaultTestimonials = [
     name: 'Dhruv',
     location: 'California',
     quote:
-      "Code a robot has impacted our team heavily by bringing quality lessons that my team completed at their own place.",
+      "Code a robot has impacted our team heavily by bringing quality lessons that my team completed at their own pace.",
   },
+  {
+    id: 'robin',
+    name: 'Robin',
+    location: 'Canada',
+    quote:
+      "This has been a great tool for teaching new students java!",
+  },
+  
 ];
