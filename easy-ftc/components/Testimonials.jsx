@@ -128,5 +128,12 @@ const defaultTestimonials = [
     quote:
       "This has been a great tool for teaching new students java!",
   },
+  {
+    id: 'nisheet',
+    name: 'Nisheet',
+    location: 'Texas',
+    quote:
+      "This has helped me to understand the overwhelming FTC code and also explains what certain parts of the robot does. This has helped me to become a better coder since when I first got into this I didn't know how to code but ever since this I have learned to code better and think smarter.",
+  },
   
 ];
