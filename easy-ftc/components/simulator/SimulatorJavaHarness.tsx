@@ -31,6 +31,10 @@ const DEMO_FILES = [
 
 public class SimulatorNative {
   public static native void setMotorPower(String deviceName, double power);
+  public static native int getMotorCurrentPosition(String deviceName);
+  public static native void setMotorTargetPosition(String deviceName, int targetTicks);
+  public static native void setMotorMode(String deviceName, String mode);
+  public static native boolean isMotorBusy(String deviceName);
   public static native void setServoPosition(String deviceName, double position);
   public static native void addTelemetry(String caption, String value);
   public static native void waitForStart();
@@ -44,7 +48,13 @@ public class SimulatorNative {
 import sim.bridge.SimulatorNative;
 
 public class DcMotor {
+  public enum RunMode {
+    RUN_WITHOUT_ENCODER,
+    RUN_TO_POSITION
+  }
+
   private final String deviceName;
+  private RunMode runMode = RunMode.RUN_WITHOUT_ENCODER;
 
   public DcMotor(String deviceName) {
     this.deviceName = deviceName;
@@ -52,6 +62,48 @@ public class DcMotor {
 
   public void setPower(double power) {
     SimulatorNative.setMotorPower(deviceName, power);
+  }
+
+  public int getCurrentPosition() {
+    return SimulatorNative.getMotorCurrentPosition(deviceName);
+  }
+
+  public void setTargetPosition(int targetTicks) {
+    SimulatorNative.setMotorTargetPosition(deviceName, targetTicks);
+  }
+
+  public void setMode(RunMode runMode) {
+    this.runMode = runMode;
+    SimulatorNative.setMotorMode(deviceName, runMode.name());
+  }
+
+  public RunMode getMode() {
+    return runMode;
+  }
+
+  public boolean isBusy() {
+    return SimulatorNative.isMotorBusy(deviceName);
+  }
+}
+`,
+  },
+  {
+    name: "ElapsedTime.java",
+    content: `package sim.ftc;
+
+public class ElapsedTime {
+  private long startTimeNanos;
+
+  public ElapsedTime() {
+    reset();
+  }
+
+  public void reset() {
+    startTimeNanos = System.nanoTime();
+  }
+
+  public double seconds() {
+    return (System.nanoTime() - startTimeNanos) / 1_000_000_000.0;
   }
 }
 `,
@@ -142,6 +194,7 @@ public abstract class LinearOpMode {
     content: `package sim.demo;
 
 import sim.ftc.DcMotor;
+import sim.ftc.ElapsedTime;
 import sim.ftc.LinearOpMode;
 import sim.ftc.Servo;
 
@@ -150,6 +203,7 @@ public class MechanismTestOpMode extends LinearOpMode {
   public void runOpMode() throws Exception {
     DcMotor armMotor = hardwareMap.get(DcMotor.class, "armMotor");
     Servo clawServo = hardwareMap.get(Servo.class, "clawServo");
+    ElapsedTime timer = new ElapsedTime();
 
     telemetry.addData("status", "initialized");
     waitForStart();
@@ -158,26 +212,36 @@ public class MechanismTestOpMode extends LinearOpMode {
       return;
     }
 
+    timer.reset();
     telemetry.addData("status", "starting mechanism test");
     clawServo.setPosition(1.0);
     sleep(500);
 
-    for (int i = 0; i < 4; i++) {
-      armMotor.setPower(0.85);
-      telemetry.addData("armStep", "raising " + i);
-      sleep(350);
+    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    armMotor.setTargetPosition(780);
+    armMotor.setPower(1.0);
+    while (opModeIsActive() && armMotor.isBusy()) {
+      telemetry.addData("phase", "raising to target");
+      telemetry.addData("armTicks", armMotor.getCurrentPosition());
+      telemetry.addData("elapsed", String.format("%.2f", timer.seconds()));
+      sleep(120);
     }
 
     clawServo.setPosition(0.1);
     telemetry.addData("claw", "closing");
     sleep(450);
 
-    for (int i = 0; i < 3; i++) {
-      armMotor.setPower(-0.75);
-      telemetry.addData("armStep", "lowering " + i);
-      sleep(350);
+    armMotor.setTargetPosition(220);
+    armMotor.setPower(0.85);
+    while (opModeIsActive() && armMotor.isBusy()) {
+      telemetry.addData("phase", "lowering to target");
+      telemetry.addData("armTicks", armMotor.getCurrentPosition());
+      telemetry.addData("elapsed", String.format("%.2f", timer.seconds()));
+      sleep(120);
     }
 
+    telemetry.addData("finalTicks", armMotor.getCurrentPosition());
+    telemetry.addData("totalTime", String.format("%.2f", timer.seconds()));
     telemetry.addData("status", "mechanism test complete");
   }
 }
@@ -243,6 +307,74 @@ const HARNESS_HTML = `<!DOCTYPE html>
         });
       }
 
+      async function Java_sim_bridge_SimulatorNative_getMotorCurrentPosition(lib, deviceName) {
+        return await new Promise((resolve) => {
+          const requestId = "motor-pos-" + Math.random().toString(36).slice(2);
+          function handleMessage(event) {
+            if (
+              event.source !== parent ||
+              !event.data ||
+              event.data.type !== "sim-java-motor-position-response" ||
+              event.data.requestId !== requestId
+            ) {
+              return;
+            }
+
+            window.removeEventListener("message", handleMessage);
+            resolve(Number(event.data.position));
+          }
+
+          window.addEventListener("message", handleMessage);
+          notifyParent("sim-java-motor-position-request", {
+            requestId,
+            deviceName: String(deviceName),
+          });
+        });
+      }
+
+      async function Java_sim_bridge_SimulatorNative_setMotorTargetPosition(
+        lib,
+        deviceName,
+        targetTicks
+      ) {
+        notifyParent("sim-java-set-motor-target-position", {
+          deviceName: String(deviceName),
+          targetTicks: Number(targetTicks),
+        });
+      }
+
+      async function Java_sim_bridge_SimulatorNative_setMotorMode(lib, deviceName, mode) {
+        notifyParent("sim-java-set-motor-mode", {
+          deviceName: String(deviceName),
+          mode: String(mode),
+        });
+      }
+
+      async function Java_sim_bridge_SimulatorNative_isMotorBusy(lib, deviceName) {
+        return await new Promise((resolve) => {
+          const requestId = "motor-busy-" + Math.random().toString(36).slice(2);
+          function handleMessage(event) {
+            if (
+              event.source !== parent ||
+              !event.data ||
+              event.data.type !== "sim-java-motor-busy-response" ||
+              event.data.requestId !== requestId
+            ) {
+              return;
+            }
+
+            window.removeEventListener("message", handleMessage);
+            resolve(Boolean(event.data.busy));
+          }
+
+          window.addEventListener("message", handleMessage);
+          notifyParent("sim-java-motor-busy-request", {
+            requestId,
+            deviceName: String(deviceName),
+          });
+        });
+      }
+
       async function Java_sim_bridge_SimulatorNative_setServoPosition(lib, deviceName, position) {
         notifyParent("sim-java-servo-position", {
           deviceName: String(deviceName),
@@ -287,6 +419,10 @@ const HARNESS_HTML = `<!DOCTYPE html>
             version: 8,
             natives: {
               Java_sim_bridge_SimulatorNative_setMotorPower,
+              Java_sim_bridge_SimulatorNative_getMotorCurrentPosition,
+              Java_sim_bridge_SimulatorNative_setMotorTargetPosition,
+              Java_sim_bridge_SimulatorNative_setMotorMode,
+              Java_sim_bridge_SimulatorNative_isMotorBusy,
               Java_sim_bridge_SimulatorNative_setServoPosition,
               Java_sim_bridge_SimulatorNative_addTelemetry,
               Java_sim_bridge_SimulatorNative_waitForStart,
@@ -314,6 +450,13 @@ const HARNESS_HTML = `<!DOCTYPE html>
           } else {
             hasPendingStart = true;
           }
+          return;
+        }
+
+        if (
+          event.data.type === "sim-java-motor-position-response" ||
+          event.data.type === "sim-java-motor-busy-response"
+        ) {
           return;
         }
 
@@ -374,6 +517,7 @@ export default function SimulatorJavaHarness({
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [status, setStatus] = useState<HarnessStatus>("loading");
   const [awaitingStart, setAwaitingStart] = useState(false);
+  const [pendingRun, setPendingRun] = useState(false);
   const [logEntries, setLogEntries] = useState<HarnessLogEntry[]>([
     { id: 1, tone: "default", message: "Preparing isolated CheerpJ harness..." },
   ]);
@@ -416,6 +560,38 @@ export default function SimulatorJavaHarness({
         case "sim-java-motor-power":
           bridge.setMotorPower(String(event.data.deviceName), Number(event.data.power));
           break;
+        case "sim-java-motor-position-request":
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              type: "sim-java-motor-position-response",
+              requestId: String(event.data.requestId),
+              position: bridge.getMotorCurrentPosition(String(event.data.deviceName)),
+            },
+            "*"
+          );
+          break;
+        case "sim-java-set-motor-target-position":
+          bridge.setMotorTargetPosition(
+            String(event.data.deviceName),
+            Number(event.data.targetTicks)
+          );
+          break;
+        case "sim-java-set-motor-mode":
+          bridge.setMotorMode(
+            String(event.data.deviceName),
+            String(event.data.mode) as "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION"
+          );
+          break;
+        case "sim-java-motor-busy-request":
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              type: "sim-java-motor-busy-response",
+              requestId: String(event.data.requestId),
+              busy: bridge.isMotorBusy(String(event.data.deviceName)),
+            },
+            "*"
+          );
+          break;
         case "sim-java-servo-position":
           bridge.setServoPosition(String(event.data.deviceName), Number(event.data.position));
           break;
@@ -425,11 +601,13 @@ export default function SimulatorJavaHarness({
         case "sim-java-complete":
           setStatus("ready");
           setAwaitingStart(false);
+          setPendingRun(false);
           appendLog("Java bridge demo completed.", "success");
           break;
         case "sim-java-error":
           setStatus("error");
           setAwaitingStart(false);
+          setPendingRun(false);
           appendLog(String(event.data.message), "error");
           break;
       }
@@ -441,7 +619,7 @@ export default function SimulatorJavaHarness({
     };
   }, [appendLog, bridge]);
 
-  const runDemo = useCallback(() => {
+  const postRunDemo = useCallback(() => {
     if (!iframeRef.current?.contentWindow) {
       appendLog("Harness iframe is not ready yet.", "error");
       return;
@@ -449,6 +627,7 @@ export default function SimulatorJavaHarness({
 
     setStatus("running");
     setAwaitingStart(false);
+    setPendingRun(false);
     bridge.reset();
     appendLog("Posting Java demo files into CheerpJ...");
     iframeRef.current.contentWindow.postMessage(
@@ -459,6 +638,27 @@ export default function SimulatorJavaHarness({
       "*"
     );
   }, [appendLog, bridge]);
+
+  const runDemo = useCallback(() => {
+    if (status === "loading") {
+      setPendingRun(true);
+      appendLog("Harness still loading. Demo will start automatically when ready.");
+      return;
+    }
+
+    if (status === "running") {
+      appendLog("Java demo is already running.");
+      return;
+    }
+
+    postRunDemo();
+  }, [appendLog, postRunDemo, status]);
+
+  useEffect(() => {
+    if (status === "ready" && pendingRun) {
+      postRunDemo();
+    }
+  }, [pendingRun, postRunDemo, status]);
 
   const startOpMode = useCallback(() => {
     if (!iframeRef.current?.contentWindow) {
@@ -501,7 +701,7 @@ export default function SimulatorJavaHarness({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-300">{statusLabel}</div>
           <div className="flex gap-3">
-            <Button onClick={runDemo} disabled={status === "loading" || status === "running"}>
+            <Button onClick={runDemo} disabled={status === "running"}>
               Load Java Demo
             </Button>
             <Button

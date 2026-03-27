@@ -30,6 +30,10 @@ export interface SimulatorState {
   telemetry: SimulatorTelemetryEntry[];
   telemetryLog: SimulatorLogEntry[];
   nextLogId: number;
+  armEncoderTicks: number;
+  motorRunMode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
+  motorTargetTicks: number;
+  motorPower: number;
 }
 
 export type SimulatorAction =
@@ -39,6 +43,12 @@ export type SimulatorAction =
   | { type: "CLOSE_CLAW" }
   | { type: "ARM_DELTA"; deltaDeg: number }
   | { type: "ARM_TARGET"; targetDeg: number }
+  | { type: "SET_ARM_TARGET_TICKS"; targetTicks: number }
+  | {
+      type: "SET_MOTOR_MODE";
+      mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
+    }
+  | { type: "SET_MOTOR_POWER"; power: number }
   | { type: "SET_CLAW"; amount: number }
   | { type: "SET_STATUS"; status: SimulatorStatus }
   | { type: "SET_LAST_ACTION"; label: string }
@@ -83,6 +93,10 @@ export function createDefaultSimulatorState(): SimulatorState {
     telemetry: [],
     telemetryLog: [initialLog],
     nextLogId: 2,
+    armEncoderTicks: 133,
+    motorRunMode: "RUN_WITHOUT_ENCODER",
+    motorTargetTicks: 133,
+    motorPower: 0,
   };
 
   state.telemetry = buildTelemetry(state);
@@ -95,6 +109,9 @@ function buildTelemetry(state: SimulatorState): SimulatorTelemetryEntry[] {
     { label: "Arm Angle", value: `${state.armAngleDeg.toFixed(1)} deg` },
     { label: "Arm Target", value: `${state.armTargetDeg.toFixed(1)} deg` },
     { label: "Claw Open", value: state.clawOpenAmount.toFixed(2) },
+    { label: "Arm Encoder", value: `${Math.round(state.armEncoderTicks)} ticks` },
+    { label: "Motor Mode", value: state.motorRunMode },
+    { label: "Motor Target", value: `${Math.round(state.motorTargetTicks)} ticks` },
     { label: "Claw Target", value: state.clawTargetAmount.toFixed(2) },
     { label: "Elapsed", value: `${state.elapsedSeconds.toFixed(2)} s` },
     { label: "Demo Loops", value: String(state.loopCount) },
@@ -144,7 +161,25 @@ function reduceSimulatorState(
         nextState.armMinDeg,
         nextState.armMaxDeg
       );
+      nextState.motorTargetTicks = Math.round(nextState.armTargetDeg * 11.08);
       nextState.lastAction = "Set arm target";
+      break;
+    case "SET_ARM_TARGET_TICKS":
+      nextState.motorTargetTicks = action.targetTicks;
+      nextState.armTargetDeg = clamp(
+        action.targetTicks / 11.08,
+        nextState.armMinDeg,
+        nextState.armMaxDeg
+      );
+      nextState.lastAction = "Set motor target position";
+      break;
+    case "SET_MOTOR_MODE":
+      nextState.motorRunMode = action.mode;
+      nextState.lastAction = `Motor mode: ${action.mode}`;
+      break;
+    case "SET_MOTOR_POWER":
+      nextState.motorPower = clamp(action.power, -1, 1);
+      nextState.lastAction = `Motor power: ${nextState.motorPower.toFixed(2)}`;
       break;
     case "SET_CLAW":
       nextState.clawTargetAmount = clamp(
@@ -243,11 +278,35 @@ export function createSimulatorStore(): SimulatorStore {
         }
       }
 
+      if (state.motorRunMode === "RUN_TO_POSITION" && Math.abs(state.motorPower) > 0.001) {
+        nextState.armTargetDeg = clamp(
+          state.motorTargetTicks / 11.08,
+          state.armMinDeg,
+          state.armMaxDeg
+        );
+      } else if (state.motorRunMode === "RUN_WITHOUT_ENCODER" && Math.abs(state.motorPower) > 0.001) {
+        nextState.armTargetDeg = clamp(
+          state.armAngleDeg + state.motorPower * state.armSpeedDegPerSecond * 0.35,
+          state.armMinDeg,
+          state.armMaxDeg
+        );
+      }
+
       nextState.armAngleDeg = moveToward(
         state.armAngleDeg,
         nextState.armTargetDeg,
-        state.armSpeedDegPerSecond * deltaSeconds
+        Math.max(0.01, Math.abs(state.motorPower)) *
+          state.armSpeedDegPerSecond *
+          deltaSeconds
       );
+      nextState.armEncoderTicks = nextState.armAngleDeg * 11.08;
+
+      if (
+        state.motorRunMode === "RUN_TO_POSITION" &&
+        Math.abs(nextState.armEncoderTicks - state.motorTargetTicks) < 6
+      ) {
+        nextState.motorPower = 0;
+      }
       nextState.clawOpenAmount = moveToward(
         state.clawOpenAmount,
         nextState.clawTargetAmount,
@@ -271,10 +330,18 @@ export interface SimulatorBridge {
   closeClaw: () => void;
   dispatchAction: (action: SimulatorAction) => void;
   getSnapshot: () => SimulatorState;
+  getMotorMode: (deviceName: string) => "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
   openClaw: () => void;
   reset: () => void;
   run: () => void;
   setMotorPower: (deviceName: string, power: number) => void;
+  getMotorCurrentPosition: (deviceName: string) => number;
+  isMotorBusy: (deviceName: string) => boolean;
+  setMotorMode: (
+    deviceName: string,
+    mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION"
+  ) => void;
+  setMotorTargetPosition: (deviceName: string, targetTicks: number) => void;
   setServoPosition: (deviceName: string, position: number) => void;
   addTelemetry: (caption: string, value: string | number) => void;
 }
@@ -315,18 +382,20 @@ export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
     getSnapshot() {
       return store.getState();
     },
+    getMotorMode(deviceName) {
+      const currentState = store.getState();
+      if (deviceName === "armMotor") {
+        return currentState.motorRunMode;
+      }
+      return "RUN_WITHOUT_ENCODER";
+    },
     setMotorPower(deviceName, power) {
       const normalizedPower = clamp(power, -1, 1);
 
       // TODO: Future CheerpJ FTC bridge should route motor.setPower() calls here.
       // Map named motors to mechanism targets instead of touching Three.js meshes directly.
       if (deviceName === "armMotor") {
-        const currentState = store.getState();
-        const targetDeg =
-          currentState.armAngleDeg +
-          normalizedPower * currentState.armSpeedDegPerSecond * 0.35;
-
-        store.dispatch({ type: "ARM_TARGET", targetDeg });
+        store.dispatch({ type: "SET_MOTOR_POWER", power: normalizedPower });
         store.dispatch({
           type: "SET_LAST_ACTION",
           label: `motor.setPower(${deviceName}, ${normalizedPower.toFixed(2)})`,
@@ -334,6 +403,39 @@ export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
         logBridgeMessage(
           `motor.setPower("${deviceName}", ${normalizedPower.toFixed(2)})`
         );
+      }
+    },
+    getMotorCurrentPosition(deviceName) {
+      const currentState = store.getState();
+
+      // TODO: Future CheerpJ FTC bridge should route motor.getCurrentPosition() calls here.
+      if (deviceName === "armMotor") {
+        return Math.round(currentState.armEncoderTicks);
+      }
+
+      return 0;
+    },
+    isMotorBusy(deviceName) {
+      const currentState = store.getState();
+      if (deviceName === "armMotor") {
+        return (
+          currentState.motorRunMode === "RUN_TO_POSITION" &&
+          Math.abs(currentState.armEncoderTicks - currentState.motorTargetTicks) >= 6
+        );
+      }
+
+      return false;
+    },
+    setMotorMode(deviceName, mode) {
+      if (deviceName === "armMotor") {
+        store.dispatch({ type: "SET_MOTOR_MODE", mode });
+        logBridgeMessage(`motor.setMode("${deviceName}", ${mode})`);
+      }
+    },
+    setMotorTargetPosition(deviceName, targetTicks) {
+      if (deviceName === "armMotor") {
+        store.dispatch({ type: "SET_ARM_TARGET_TICKS", targetTicks });
+        logBridgeMessage(`motor.setTargetPosition("${deviceName}", ${targetTicks})`);
       }
     },
     setServoPosition(deviceName, position) {
