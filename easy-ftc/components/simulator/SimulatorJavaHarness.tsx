@@ -33,6 +33,7 @@ public class SimulatorNative {
   public static native void setMotorPower(String deviceName, double power);
   public static native void setServoPosition(String deviceName, double position);
   public static native void addTelemetry(String caption, String value);
+  public static native void waitForStart();
 }
 `,
   },
@@ -115,11 +116,23 @@ public class HardwareMap {
 public abstract class LinearOpMode {
   public final HardwareMap hardwareMap = new HardwareMap();
   public final Telemetry telemetry = new Telemetry();
+  private boolean started = false;
 
   public abstract void runOpMode() throws Exception;
 
   public void sleep(long milliseconds) throws InterruptedException {
     Thread.sleep(milliseconds);
+  }
+
+  public void waitForStart() {
+    telemetry.addData("opMode", "waiting for start");
+    sim.bridge.SimulatorNative.waitForStart();
+    started = true;
+    telemetry.addData("opMode", "started");
+  }
+
+  public boolean opModeIsActive() {
+    return started;
   }
 }
 `,
@@ -137,6 +150,13 @@ public class MechanismTestOpMode extends LinearOpMode {
   public void runOpMode() throws Exception {
     DcMotor armMotor = hardwareMap.get(DcMotor.class, "armMotor");
     Servo clawServo = hardwareMap.get(Servo.class, "clawServo");
+
+    telemetry.addData("status", "initialized");
+    waitForStart();
+
+    if (!opModeIsActive()) {
+      return;
+    }
 
     telemetry.addData("status", "starting mechanism test");
     clawServo.setPosition(1.0);
@@ -237,6 +257,30 @@ const HARNESS_HTML = `<!DOCTYPE html>
         });
       }
 
+      let startResolver = null;
+      let hasPendingStart = false;
+
+      async function Java_sim_bridge_SimulatorNative_waitForStart() {
+        notifyParent("sim-java-waiting-for-start", {});
+        setStatus("Waiting for start signal…");
+
+        if (hasPendingStart) {
+          hasPendingStart = false;
+          notifyParent("sim-java-started", {});
+          setStatus("Java demo running…");
+          return;
+        }
+
+        await new Promise((resolve) => {
+          startResolver = () => {
+            startResolver = null;
+            notifyParent("sim-java-started", {});
+            setStatus("Java demo running…");
+            resolve();
+          };
+        });
+      }
+
       async function init() {
         try {
           await cheerpjInit({
@@ -245,6 +289,7 @@ const HARNESS_HTML = `<!DOCTYPE html>
               Java_sim_bridge_SimulatorNative_setMotorPower,
               Java_sim_bridge_SimulatorNative_setServoPosition,
               Java_sim_bridge_SimulatorNative_addTelemetry,
+              Java_sim_bridge_SimulatorNative_waitForStart,
             },
             status: "none",
           });
@@ -259,7 +304,20 @@ const HARNESS_HTML = `<!DOCTYPE html>
       }
 
       window.addEventListener("message", async (event) => {
-        if (!event.data || event.data.type !== "sim-java-run-demo") {
+        if (!event.data) {
+          return;
+        }
+
+        if (event.data.type === "sim-java-start-opmode") {
+          if (startResolver) {
+            startResolver();
+          } else {
+            hasPendingStart = true;
+          }
+          return;
+        }
+
+        if (event.data.type !== "sim-java-run-demo") {
           return;
         }
 
@@ -315,6 +373,7 @@ export default function SimulatorJavaHarness({
 }: SimulatorJavaHarnessProps) {
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [status, setStatus] = useState<HarnessStatus>("loading");
+  const [awaitingStart, setAwaitingStart] = useState(false);
   const [logEntries, setLogEntries] = useState<HarnessLogEntry[]>([
     { id: 1, tone: "default", message: "Preparing isolated CheerpJ harness..." },
   ]);
@@ -344,6 +403,16 @@ export default function SimulatorJavaHarness({
         case "sim-java-log":
           appendLog(String(event.data.message));
           break;
+        case "sim-java-waiting-for-start":
+          setStatus("ready");
+          setAwaitingStart(true);
+          appendLog("OpMode initialized and waiting for start.", "success");
+          break;
+        case "sim-java-started":
+          setStatus("running");
+          setAwaitingStart(false);
+          appendLog("Start signal delivered to Java opmode.", "success");
+          break;
         case "sim-java-motor-power":
           bridge.setMotorPower(String(event.data.deviceName), Number(event.data.power));
           break;
@@ -355,10 +424,12 @@ export default function SimulatorJavaHarness({
           break;
         case "sim-java-complete":
           setStatus("ready");
+          setAwaitingStart(false);
           appendLog("Java bridge demo completed.", "success");
           break;
         case "sim-java-error":
           setStatus("error");
+          setAwaitingStart(false);
           appendLog(String(event.data.message), "error");
           break;
       }
@@ -377,6 +448,7 @@ export default function SimulatorJavaHarness({
     }
 
     setStatus("running");
+    setAwaitingStart(false);
     bridge.reset();
     appendLog("Posting Java demo files into CheerpJ...");
     iframeRef.current.contentWindow.postMessage(
@@ -387,6 +459,21 @@ export default function SimulatorJavaHarness({
       "*"
     );
   }, [appendLog, bridge]);
+
+  const startOpMode = useCallback(() => {
+    if (!iframeRef.current?.contentWindow) {
+      appendLog("Harness iframe is not ready yet.", "error");
+      return;
+    }
+
+    appendLog("Sending start signal to Java opmode...");
+    iframeRef.current.contentWindow.postMessage(
+      {
+        type: "sim-java-start-opmode",
+      },
+      "*"
+    );
+  }, [appendLog]);
 
   const statusLabel = useMemo(() => {
     switch (status) {
@@ -413,9 +500,18 @@ export default function SimulatorJavaHarness({
       <CardContent className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="text-sm text-slate-300">{statusLabel}</div>
-          <Button onClick={runDemo} disabled={status === "loading" || status === "running"}>
-            Run Java Demo
-          </Button>
+          <div className="flex gap-3">
+            <Button onClick={runDemo} disabled={status === "loading" || status === "running"}>
+              Load Java Demo
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={startOpMode}
+              disabled={!awaitingStart}
+            >
+              Start OpMode
+            </Button>
+          </div>
         </div>
 
         <iframe
