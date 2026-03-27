@@ -37,32 +37,139 @@ public class SimulatorNative {
 `,
   },
   {
+    name: "DcMotor.java",
+    content: `package sim.ftc;
+
+import sim.bridge.SimulatorNative;
+
+public class DcMotor {
+  private final String deviceName;
+
+  public DcMotor(String deviceName) {
+    this.deviceName = deviceName;
+  }
+
+  public void setPower(double power) {
+    SimulatorNative.setMotorPower(deviceName, power);
+  }
+}
+`,
+  },
+  {
+    name: "Servo.java",
+    content: `package sim.ftc;
+
+import sim.bridge.SimulatorNative;
+
+public class Servo {
+  private final String deviceName;
+
+  public Servo(String deviceName) {
+    this.deviceName = deviceName;
+  }
+
+  public void setPosition(double position) {
+    SimulatorNative.setServoPosition(deviceName, position);
+  }
+}
+`,
+  },
+  {
+    name: "Telemetry.java",
+    content: `package sim.ftc;
+
+import sim.bridge.SimulatorNative;
+
+public class Telemetry {
+  public void addData(String caption, Object value) {
+    SimulatorNative.addTelemetry(caption, String.valueOf(value));
+  }
+}
+`,
+  },
+  {
+    name: "HardwareMap.java",
+    content: `package sim.ftc;
+
+public class HardwareMap {
+  public <T> T get(Class<T> deviceClass, String deviceName) {
+    if (deviceClass == DcMotor.class) {
+      return deviceClass.cast(new DcMotor(deviceName));
+    }
+
+    if (deviceClass == Servo.class) {
+      return deviceClass.cast(new Servo(deviceName));
+    }
+
+    throw new IllegalArgumentException(
+      "Unsupported mock hardware device: " + deviceClass.getSimpleName() + " named " + deviceName
+    );
+  }
+}
+`,
+  },
+  {
+    name: "LinearOpMode.java",
+    content: `package sim.ftc;
+
+public abstract class LinearOpMode {
+  public final HardwareMap hardwareMap = new HardwareMap();
+  public final Telemetry telemetry = new Telemetry();
+
+  public abstract void runOpMode() throws Exception;
+
+  public void sleep(long milliseconds) throws InterruptedException {
+    Thread.sleep(milliseconds);
+  }
+}
+`,
+  },
+  {
+    name: "MechanismTestOpMode.java",
+    content: `package sim.demo;
+
+import sim.ftc.DcMotor;
+import sim.ftc.LinearOpMode;
+import sim.ftc.Servo;
+
+public class MechanismTestOpMode extends LinearOpMode {
+  @Override
+  public void runOpMode() throws Exception {
+    DcMotor armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+    Servo clawServo = hardwareMap.get(Servo.class, "clawServo");
+
+    telemetry.addData("status", "starting mechanism test");
+    clawServo.setPosition(1.0);
+    sleep(500);
+
+    for (int i = 0; i < 4; i++) {
+      armMotor.setPower(0.85);
+      telemetry.addData("armStep", "raising " + i);
+      sleep(350);
+    }
+
+    clawServo.setPosition(0.1);
+    telemetry.addData("claw", "closing");
+    sleep(450);
+
+    for (int i = 0; i < 3; i++) {
+      armMotor.setPower(-0.75);
+      telemetry.addData("armStep", "lowering " + i);
+      sleep(350);
+    }
+
+    telemetry.addData("status", "mechanism test complete");
+  }
+}
+`,
+  },
+  {
     name: "Main.java",
-    content: `package sim.bridge;
+    content: `package sim.demo;
 
 public class Main {
   public static void main(String[] args) throws Exception {
-    SimulatorNative.addTelemetry("demo", "java bridge started");
-    SimulatorNative.setServoPosition("clawServo", 1.0);
-    Thread.sleep(500);
-
-    for (int i = 0; i < 4; i++) {
-      SimulatorNative.setMotorPower("armMotor", 0.85);
-      SimulatorNative.addTelemetry("armStep", "raising " + i);
-      Thread.sleep(350);
-    }
-
-    SimulatorNative.setServoPosition("clawServo", 0.1);
-    SimulatorNative.addTelemetry("claw", "closing");
-    Thread.sleep(450);
-
-    for (int i = 0; i < 3; i++) {
-      SimulatorNative.setMotorPower("armMotor", -0.75);
-      SimulatorNative.addTelemetry("armStep", "lowering " + i);
-      Thread.sleep(350);
-    }
-
-    SimulatorNative.addTelemetry("demo", "java bridge complete");
+    new MechanismTestOpMode().runOpMode();
   }
 }
 `,
@@ -187,7 +294,7 @@ const HARNESS_HTML = `<!DOCTYPE html>
 
           setStatus("Running Java demo…");
           notifyParent("sim-java-log", { message: "Running Java bridge demo..." });
-          await cheerpjRunMain("sim.bridge.Main", classPath);
+          await cheerpjRunMain("sim.demo.Main", classPath);
           setStatus("Java demo complete");
           notifyParent("sim-java-complete", {});
         } catch (error) {
@@ -299,8 +406,8 @@ export default function SimulatorJavaHarness({
       <CardHeader>
         <CardTitle className="text-xl text-white">Java Bridge Harness</CardTitle>
         <CardDescription className="text-slate-400">
-          Isolated CheerpJ runtime with native methods that forward Java calls into the simulator
-          bridge.
+          Isolated CheerpJ runtime with a tiny FTC-style mock package backed by native methods that
+          forward Java calls into the simulator bridge.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -320,7 +427,7 @@ export default function SimulatorJavaHarness({
 
         <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
           <p className="mb-3 font-mono text-xs text-slate-400">
-            Demo files injected into CheerpJ:
+            Mock FTC demo files injected into CheerpJ:
           </p>
           <pre className="mb-0 overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-950 p-3 font-mono text-xs text-slate-200">
 {DEMO_FILES.map((file) => `// ${file.name}\n${file.content}`).join("\n")}
