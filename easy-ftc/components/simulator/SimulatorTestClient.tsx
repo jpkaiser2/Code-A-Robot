@@ -15,8 +15,16 @@ import {
 import {
   createSimulatorBridge,
   createSimulatorStore,
+  type SimulatorBridge,
   type SimulatorState,
 } from "@/lib/simulator/mechanismSimulator";
+import SimulatorJavaHarness from "@/components/simulator/SimulatorJavaHarness";
+
+declare global {
+  interface Window {
+    codeARobotSimulator?: SimulatorBridge;
+  }
+}
 
 function useSimulatorSnapshot() {
   const storeRef = useRef(createSimulatorStore());
@@ -212,6 +220,30 @@ export default function SimulatorTestClient() {
     };
   }, [store]);
 
+  useEffect(() => {
+    window.codeARobotSimulator = bridge;
+    window.dispatchEvent(
+      new CustomEvent("codearobot:simulator-ready", {
+        detail: { bridge },
+      })
+    );
+
+    const unsubscribe = store.subscribe(() => {
+      window.dispatchEvent(
+        new CustomEvent("codearobot:simulator-state-changed", {
+          detail: { state: store.getState() },
+        })
+      );
+    });
+
+    return () => {
+      unsubscribe();
+      if (window.codeARobotSimulator === bridge) {
+        delete window.codeARobotSimulator;
+      }
+    };
+  }, [bridge, store]);
+
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
@@ -298,6 +330,29 @@ export default function SimulatorTestClient() {
 
               <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
                 <CardHeader>
+                  <CardTitle className="text-xl text-white">Bridge Event Log</CardTitle>
+                  <CardDescription className="text-slate-400">
+                    Recent calls flowing into the simulator bridge. This is the intended handoff
+                    point for future CheerpJ-controlled FTC stubs.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-xs sm:text-sm">
+                    {snapshot.telemetryLog.map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="flex items-start justify-between gap-4 border-b border-slate-800/70 pb-2 last:border-b-0 last:pb-0"
+                      >
+                        <span className="text-slate-400">{entry.timestampLabel}</span>
+                        <span className="text-right text-slate-100">{entry.message}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
+                <CardHeader>
                   <CardTitle className="text-xl text-white">Next bridge points</CardTitle>
                   <CardDescription className="text-slate-400">
                     These hooks are scaffolded in the simulator bridge for later CheerpJ wiring.
@@ -314,8 +369,14 @@ export default function SimulatorTestClient() {
                     `telemetry.addData()` should append data into this panel without touching render
                     objects.
                   </p>
+                  <p className="mb-0">
+                    `window.codeARobotSimulator` is now exposed for future browser-side bridge code
+                    and debug testing.
+                  </p>
                 </CardContent>
               </Card>
+
+              <SimulatorJavaHarness bridge={bridge} />
             </div>
           </div>
         </div>

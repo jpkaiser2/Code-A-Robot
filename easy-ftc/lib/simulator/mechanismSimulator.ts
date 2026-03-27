@@ -5,6 +5,12 @@ export interface SimulatorTelemetryEntry {
   value: string;
 }
 
+export interface SimulatorLogEntry {
+  id: number;
+  message: string;
+  timestampLabel: string;
+}
+
 export interface SimulatorState {
   armAngleDeg: number;
   armTargetDeg: number;
@@ -22,6 +28,8 @@ export interface SimulatorState {
   lastAction: string;
   demoPhase: "raising" | "lowering";
   telemetry: SimulatorTelemetryEntry[];
+  telemetryLog: SimulatorLogEntry[];
+  nextLogId: number;
 }
 
 export type SimulatorAction =
@@ -33,7 +41,8 @@ export type SimulatorAction =
   | { type: "ARM_TARGET"; targetDeg: number }
   | { type: "SET_CLAW"; amount: number }
   | { type: "SET_STATUS"; status: SimulatorStatus }
-  | { type: "SET_LAST_ACTION"; label: string };
+  | { type: "SET_LAST_ACTION"; label: string }
+  | { type: "APPEND_LOG"; message: string };
 
 type SimulatorListener = () => void;
 
@@ -49,6 +58,12 @@ const moveToward = (current: number, target: number, maxDelta: number) => {
 };
 
 export function createDefaultSimulatorState(): SimulatorState {
+  const initialLog: SimulatorLogEntry = {
+    id: 1,
+    message: "Simulator initialized",
+    timestampLabel: "t+0.00s",
+  };
+
   const state: SimulatorState = {
     armAngleDeg: 12,
     armTargetDeg: 12,
@@ -66,6 +81,8 @@ export function createDefaultSimulatorState(): SimulatorState {
     lastAction: "Initialized simulator",
     demoPhase: "raising",
     telemetry: [],
+    telemetryLog: [initialLog],
+    nextLogId: 2,
   };
 
   state.telemetry = buildTelemetry(state);
@@ -96,6 +113,7 @@ function reduceSimulatorState(
   const nextState: SimulatorState = {
     ...previousState,
     telemetry: previousState.telemetry,
+    telemetryLog: previousState.telemetryLog,
   };
 
   switch (action.type) {
@@ -142,6 +160,17 @@ function reduceSimulatorState(
       break;
     case "SET_LAST_ACTION":
       nextState.lastAction = action.label;
+      break;
+    case "APPEND_LOG":
+      nextState.telemetryLog = [
+        ...previousState.telemetryLog,
+        {
+          id: previousState.nextLogId,
+          message: action.message,
+          timestampLabel: `t+${previousState.elapsedSeconds.toFixed(2)}s`,
+        },
+      ].slice(-12);
+      nextState.nextLogId = previousState.nextLogId + 1;
       break;
   }
 
@@ -240,6 +269,8 @@ export interface SimulatorBridge {
   armDown: () => void;
   armUp: () => void;
   closeClaw: () => void;
+  dispatchAction: (action: SimulatorAction) => void;
+  getSnapshot: () => SimulatorState;
   openClaw: () => void;
   reset: () => void;
   run: () => void;
@@ -249,24 +280,40 @@ export interface SimulatorBridge {
 }
 
 export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
+  const logBridgeMessage = (message: string) => {
+    store.dispatch({ type: "APPEND_LOG", message });
+  };
+
   return {
     run() {
       store.dispatch({ type: "RUN" });
+      logBridgeMessage("Bridge call: run()");
     },
     reset() {
       store.reset();
     },
     openClaw() {
       store.dispatch({ type: "OPEN_CLAW" });
+      logBridgeMessage("Bridge call: openClaw()");
     },
     closeClaw() {
       store.dispatch({ type: "CLOSE_CLAW" });
+      logBridgeMessage("Bridge call: closeClaw()");
     },
     armUp() {
       store.dispatch({ type: "ARM_DELTA", deltaDeg: 12 });
+      logBridgeMessage("Bridge call: armUp()");
     },
     armDown() {
       store.dispatch({ type: "ARM_DELTA", deltaDeg: -12 });
+      logBridgeMessage("Bridge call: armDown()");
+    },
+    dispatchAction(action) {
+      store.dispatch(action);
+      logBridgeMessage(`Bridge action: ${action.type}`);
+    },
+    getSnapshot() {
+      return store.getState();
     },
     setMotorPower(deviceName, power) {
       const normalizedPower = clamp(power, -1, 1);
@@ -284,6 +331,9 @@ export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
           type: "SET_LAST_ACTION",
           label: `motor.setPower(${deviceName}, ${normalizedPower.toFixed(2)})`,
         });
+        logBridgeMessage(
+          `motor.setPower("${deviceName}", ${normalizedPower.toFixed(2)})`
+        );
       }
     },
     setServoPosition(deviceName, position) {
@@ -296,6 +346,9 @@ export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
           type: "SET_LAST_ACTION",
           label: `servo.setPosition(${deviceName}, ${normalizedPosition.toFixed(2)})`,
         });
+        logBridgeMessage(
+          `servo.setPosition("${deviceName}", ${normalizedPosition.toFixed(2)})`
+        );
       }
     },
     addTelemetry(caption, value) {
@@ -304,6 +357,7 @@ export function createSimulatorBridge(store: SimulatorStore): SimulatorBridge {
         type: "SET_LAST_ACTION",
         label: `telemetry.addData(${caption}, ${String(value)})`,
       });
+      logBridgeMessage(`telemetry.addData("${caption}", ${String(value)})`);
     },
   };
 }
