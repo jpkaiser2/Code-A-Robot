@@ -14,6 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import F310Gamepad, { type F310State } from "@/components/simulator/F310Gamepad";
 import type { SimulatorBridge } from "@/lib/simulator/mechanismSimulator";
 
 interface SimulatorJavaHarnessProps {
@@ -49,6 +50,7 @@ public class SimulatorNative {
   public static native void setMotorMode(String deviceName, String mode);
   public static native boolean isMotorBusy(String deviceName);
   public static native boolean getGamepadBoolean(int gamepadId, String controlName);
+  public static native float getGamepadFloat(int gamepadId, String controlName);
   public static native boolean isOpModeActive();
   public static native void setServoPosition(String deviceName, double position);
   public static native void addTelemetry(String caption, String value);
@@ -120,6 +122,17 @@ public class Gamepad {
   public boolean dpad_right;
   public boolean left_bumper;
   public boolean right_bumper;
+  public boolean left_stick_button;
+  public boolean right_stick_button;
+  public boolean back;
+  public boolean start;
+  public boolean guide;
+  public float left_stick_x;
+  public float left_stick_y;
+  public float right_stick_x;
+  public float right_stick_y;
+  public float left_trigger;
+  public float right_trigger;
 
   private final int gamepadId;
 
@@ -138,6 +151,17 @@ public class Gamepad {
     dpad_right = SimulatorNative.getGamepadBoolean(gamepadId, "dpad_right");
     left_bumper = SimulatorNative.getGamepadBoolean(gamepadId, "left_bumper");
     right_bumper = SimulatorNative.getGamepadBoolean(gamepadId, "right_bumper");
+    left_stick_button = SimulatorNative.getGamepadBoolean(gamepadId, "left_stick_button");
+    right_stick_button = SimulatorNative.getGamepadBoolean(gamepadId, "right_stick_button");
+    back = SimulatorNative.getGamepadBoolean(gamepadId, "back");
+    start = SimulatorNative.getGamepadBoolean(gamepadId, "start");
+    guide = SimulatorNative.getGamepadBoolean(gamepadId, "guide");
+    left_stick_x = SimulatorNative.getGamepadFloat(gamepadId, "left_stick_x");
+    left_stick_y = SimulatorNative.getGamepadFloat(gamepadId, "left_stick_y");
+    right_stick_x = SimulatorNative.getGamepadFloat(gamepadId, "right_stick_x");
+    right_stick_y = SimulatorNative.getGamepadFloat(gamepadId, "right_stick_y");
+    left_trigger = SimulatorNative.getGamepadFloat(gamepadId, "left_trigger");
+    right_trigger = SimulatorNative.getGamepadFloat(gamepadId, "right_trigger");
   }
 }
 `,
@@ -644,6 +668,36 @@ const HARNESS_HTML = `<!DOCTYPE html>
         });
       }
 
+      async function Java_simulator_bridge_SimulatorNative_getGamepadFloat(
+        lib,
+        gamepadId,
+        controlName
+      ) {
+        return await new Promise((resolve) => {
+          const requestId = "gamepad-float-" + Math.random().toString(36).slice(2);
+          function handleMessage(event) {
+            if (
+              event.source !== parent ||
+              !event.data ||
+              event.data.type !== "sim-java-gamepad-float-response" ||
+              event.data.requestId !== requestId
+            ) {
+              return;
+            }
+
+            window.removeEventListener("message", handleMessage);
+            resolve(Number(event.data.value));
+          }
+
+          window.addEventListener("message", handleMessage);
+          notifyParent("sim-java-gamepad-float-request", {
+            requestId,
+            gamepadId: Number(gamepadId),
+            controlName: String(controlName),
+          });
+        });
+      }
+
       let opModeActive = false;
 
       async function Java_simulator_bridge_SimulatorNative_isOpModeActive() {
@@ -701,6 +755,7 @@ const HARNESS_HTML = `<!DOCTYPE html>
               Java_simulator_bridge_SimulatorNative_setMotorMode,
               Java_simulator_bridge_SimulatorNative_isMotorBusy,
               Java_simulator_bridge_SimulatorNative_getGamepadBoolean,
+              Java_simulator_bridge_SimulatorNative_getGamepadFloat,
               Java_simulator_bridge_SimulatorNative_isOpModeActive,
               Java_simulator_bridge_SimulatorNative_setServoPosition,
               Java_simulator_bridge_SimulatorNative_addTelemetry,
@@ -743,7 +798,8 @@ const HARNESS_HTML = `<!DOCTYPE html>
         if (
           event.data.type === "sim-java-motor-position-response" ||
           event.data.type === "sim-java-motor-busy-response" ||
-          event.data.type === "sim-java-gamepad-response"
+          event.data.type === "sim-java-gamepad-response" ||
+          event.data.type === "sim-java-gamepad-float-response"
         ) {
           return;
         }
@@ -814,17 +870,32 @@ export default function SimulatorJavaHarness({
   const [pendingRun, setPendingRun] = useState(false);
   const [files, setFiles] = useState<HarnessFile[]>(() => createAutonomousTemplate());
   const [activeFileId, setActiveFileId] = useState("1");
-  const [gamepadState, setGamepadState] = useState<Record<string, boolean>>({
-    a: false,
-    b: false,
-    x: false,
-    y: false,
-    dpad_up: false,
-    dpad_down: false,
-    dpad_left: false,
-    dpad_right: false,
-    left_bumper: false,
-    right_bumper: false,
+  const [gamepadState, setGamepadState] = useState<F310State>({
+    buttons: {
+      a: false,
+      b: false,
+      x: false,
+      y: false,
+      dpad_up: false,
+      dpad_down: false,
+      dpad_left: false,
+      dpad_right: false,
+      left_bumper: false,
+      right_bumper: false,
+      left_stick_button: false,
+      right_stick_button: false,
+      back: false,
+      start: false,
+      guide: false,
+    },
+    axes: {
+      left_stick_x: 0,
+      left_stick_y: 0,
+      right_stick_x: 0,
+      right_stick_y: 0,
+      left_trigger: 0,
+      right_trigger: 0,
+    },
   });
   const [logEntries, setLogEntries] = useState<HarnessLogEntry[]>([
     { id: 1, tone: "default", message: "Preparing isolated CheerpJ harness..." },
@@ -915,7 +986,25 @@ export default function SimulatorJavaHarness({
             {
               type: "sim-java-gamepad-response",
               requestId: String(event.data.requestId),
-              value: Boolean(gamepadState[String(event.data.controlName)]),
+              value: Boolean(
+                gamepadState.buttons[
+                  String(event.data.controlName) as keyof typeof gamepadState.buttons
+                ]
+              ),
+            },
+            "*"
+          );
+          break;
+        case "sim-java-gamepad-float-request":
+          iframeRef.current?.contentWindow?.postMessage(
+            {
+              type: "sim-java-gamepad-float-response",
+              requestId: String(event.data.requestId),
+              value: Number(
+                gamepadState.axes[
+                  String(event.data.controlName) as keyof typeof gamepadState.axes
+                ] ?? 0
+              ),
             },
             "*"
           );
@@ -1082,12 +1171,15 @@ export default function SimulatorJavaHarness({
       setGamepadState((previousState) => {
         const nextState = {
           ...previousState,
-          [controlName]: nextValue,
+          buttons: {
+            ...previousState.buttons,
+            [controlName]: nextValue,
+          },
         };
 
         if (nextValue) {
           for (const conflictingControl of conflictingControls[controlName] ?? []) {
-            nextState[conflictingControl] = false;
+            nextState.buttons[conflictingControl as keyof typeof nextState.buttons] = false;
           }
         }
 
@@ -1099,18 +1191,55 @@ export default function SimulatorJavaHarness({
 
   const clearGamepad = useCallback(() => {
     setGamepadState({
-      a: false,
-      b: false,
-      x: false,
-      y: false,
-      dpad_up: false,
-      dpad_down: false,
-      dpad_left: false,
-      dpad_right: false,
-      left_bumper: false,
-      right_bumper: false,
+      buttons: {
+        a: false,
+        b: false,
+        x: false,
+        y: false,
+        dpad_up: false,
+        dpad_down: false,
+        dpad_left: false,
+        dpad_right: false,
+        left_bumper: false,
+        right_bumper: false,
+        left_stick_button: false,
+        right_stick_button: false,
+        back: false,
+        start: false,
+        guide: false,
+      },
+      axes: {
+        left_stick_x: 0,
+        left_stick_y: 0,
+        right_stick_x: 0,
+        right_stick_y: 0,
+        left_trigger: 0,
+        right_trigger: 0,
+      },
     });
   }, []);
+
+  const setGamepadAxisState = useCallback(
+    (
+      axisName:
+        | "left_stick_x"
+        | "left_stick_y"
+        | "right_stick_x"
+        | "right_stick_y"
+        | "left_trigger"
+        | "right_trigger",
+      nextValue: number
+    ) => {
+      setGamepadState((previousState) => ({
+        ...previousState,
+        axes: {
+          ...previousState.axes,
+          [axisName]: nextValue,
+        },
+      }));
+    },
+    []
+  );
 
   const bindGamepadPress = useCallback(
     (controlName: string) => ({
@@ -1229,90 +1358,39 @@ export default function SimulatorJavaHarness({
               <div>
                 <p className="mb-1 text-sm font-medium text-slate-100">Gamepad 1</p>
                 <p className="mb-0 text-xs text-slate-400">
-                  Toggle buttons to simulate live FTC teleop input.
+                  Logitech F310-style input mapped to real FTC `gamepad1` fields.
                 </p>
               </div>
               <Button size="sm" variant="outline" className="bg-slate-950 text-slate-100" onClick={clearGamepad}>
                 Clear Buttons
               </Button>
             </div>
-            <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-              <div className="grid grid-cols-3 gap-2">
-                <div />
-                {["dpad_up"].map((control) => (
-                  <Button
-                    key={control}
-                    variant={gamepadState[control] ? "default" : "outline"}
-                    className="bg-slate-950 text-slate-100"
-                    {...bindGamepadPress(control)}
-                  >
-                    Up
-                  </Button>
-                ))}
-                <div />
-                {[
-                  ["dpad_left", "Left"],
-                  ["dpad_down", "Down"],
-                  ["dpad_right", "Right"],
-                ].map(([control, label]) => (
-                  <Button
-                    key={control}
-                    variant={gamepadState[control] ? "default" : "outline"}
-                    className="bg-slate-950 text-slate-100"
-                    {...bindGamepadPress(control)}
-                  >
-                    {label}
-                  </Button>
-                ))}
+            <F310Gamepad
+              state={gamepadState}
+              onAxisChange={setGamepadAxisState}
+              onButtonChange={setGamepadButtonState}
+            />
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 font-mono text-xs text-slate-300">
+                `left_stick_x`: {gamepadState.axes.left_stick_x.toFixed(2)}
+                <br />
+                `left_stick_y`: {gamepadState.axes.left_stick_y.toFixed(2)}
+                <br />
+                `right_stick_x`: {gamepadState.axes.right_stick_x.toFixed(2)}
+                <br />
+                `right_stick_y`: {gamepadState.axes.right_stick_y.toFixed(2)}
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  variant={gamepadState.left_bumper ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("left_bumper")}
-                >
-                  LB
-                </Button>
-                <div />
-                <Button
-                  variant={gamepadState.right_bumper ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("right_bumper")}
-                >
-                  RB
-                </Button>
-                <div />
-                <Button
-                  variant={gamepadState.y ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("y")}
-                >
-                  Y
-                </Button>
-                <div />
-                <Button
-                  variant={gamepadState.x ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("x")}
-                >
-                  X
-                </Button>
-                <Button
-                  variant={gamepadState.b ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("b")}
-                >
-                  B
-                </Button>
-                <div />
-                <Button
-                  variant={gamepadState.a ? "default" : "outline"}
-                  className="bg-slate-950 text-slate-100"
-                  {...bindGamepadPress("a")}
-                >
-                  A
-                </Button>
-                <div />
+              <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 font-mono text-xs text-slate-300">
+                `left_trigger`: {gamepadState.axes.left_trigger.toFixed(2)}
+                <br />
+                `right_trigger`: {gamepadState.axes.right_trigger.toFixed(2)}
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-950/70 p-3 font-mono text-xs text-slate-300">
+                Buttons:{" "}
+                {Object.entries(gamepadState.buttons)
+                  .filter(([, value]) => value)
+                  .map(([key]) => key)
+                  .join(", ") || "none"}
               </div>
             </div>
           </div>
