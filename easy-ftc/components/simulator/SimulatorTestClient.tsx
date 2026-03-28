@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
@@ -18,7 +19,28 @@ import {
   type SimulatorBridge,
   type SimulatorState,
 } from "@/lib/simulator/mechanismSimulator";
-import SimulatorJavaHarness from "@/components/simulator/SimulatorJavaHarness";
+
+const SimulatorJavaHarness = dynamic(
+  () => import("@/components/simulator/SimulatorJavaHarness"),
+  {
+    ssr: false,
+    loading: () => (
+      <Card className="h-full border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
+        <CardHeader>
+          <CardTitle className="text-xl text-white">Java Workbench</CardTitle>
+          <CardDescription className="text-slate-400">
+            Loading the editor and simulator runtime...
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex h-[680px] items-center justify-center rounded-2xl border border-slate-800 bg-slate-900/70 text-sm text-slate-400">
+            Preparing code editor
+          </div>
+        </CardContent>
+      </Card>
+    ),
+  }
+);
 
 declare global {
   interface Window {
@@ -247,8 +269,8 @@ export default function SimulatorTestClient() {
   return (
     <div className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-        <div className="flex flex-col gap-4 rounded-3xl border border-border/60 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-sky-950/20">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex flex-col gap-6 rounded-3xl border border-border/60 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-6 shadow-2xl shadow-sky-950/20">
+          <div className="flex flex-col gap-3 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl space-y-2">
               <p className="text-sm uppercase tracking-[0.28em] text-sky-300/80">
                 Simulator Test
@@ -267,14 +289,29 @@ export default function SimulatorTestClient() {
             </div>
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="overflow-hidden rounded-3xl border border-slate-800 bg-slate-950">
-              <div
-                ref={mountRef}
-                className="h-[420px] w-full sm:h-[520px] xl:h-[640px]"
-              />
-            </div>
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.28fr)]">
+            <Card className="overflow-hidden border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
+              <CardHeader className="border-b border-slate-800/80 pb-4">
+                <CardTitle className="text-xl text-white">Mechanism View</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Orbit around the testbed while the render loop applies transforms from simulator
+                  state.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div
+                  ref={mountRef}
+                  className="h-[420px] w-full sm:h-[560px] xl:h-[680px]"
+                />
+              </CardContent>
+            </Card>
 
+            <div className="min-h-0">
+              <SimulatorJavaHarness bridge={bridge} />
+            </div>
+          </div>
+
+          <div className="grid gap-4 xl:grid-cols-[320px_minmax(0,1fr)_minmax(0,1fr)]">
             <div className="flex flex-col gap-4">
               <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
                 <CardHeader>
@@ -307,77 +344,71 @@ export default function SimulatorTestClient() {
 
               <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
                 <CardHeader>
-                  <CardTitle className="text-xl text-white">Telemetry / Debug</CardTitle>
+                  <CardTitle className="text-xl text-white">Bridge Notes</CardTitle>
                   <CardDescription className="text-slate-400">
-                    Snapshot of the simulator state that future FTC-like bridge methods can publish
-                    into.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-sm">
-                    {snapshot.telemetry.map((entry) => (
-                      <div
-                        key={entry.label}
-                        className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-2 last:border-b-0 last:pb-0"
-                      >
-                        <span className="text-slate-400">{entry.label}</span>
-                        <span className="text-right text-slate-100">{entry.value}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
-                <CardHeader>
-                  <CardTitle className="text-xl text-white">Bridge Event Log</CardTitle>
-                  <CardDescription className="text-slate-400">
-                    Recent calls flowing into the simulator bridge. This is the intended handoff
-                    point for future CheerpJ-controlled FTC stubs.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-xs sm:text-sm">
-                    {snapshot.telemetryLog.map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="flex items-start justify-between gap-4 border-b border-slate-800/70 pb-2 last:border-b-0 last:pb-0"
-                      >
-                        <span className="text-slate-400">{entry.timestampLabel}</span>
-                        <span className="text-right text-slate-100">{entry.message}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
-                <CardHeader>
-                  <CardTitle className="text-xl text-white">Next bridge points</CardTitle>
-                  <CardDescription className="text-slate-400">
-                    These hooks are scaffolded in the simulator bridge for later CheerpJ wiring.
+                    Current extension points for future browser and CheerpJ FTC bridge work.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm text-slate-300">
                   <p className="mb-0">
-                    `motor.setPower()` should update named mechanism targets in the simulator state.
-                  </p>
-                  <p className="mb-0">
-                    `servo.setPosition()` should map to claw or other servo-driven mechanism values.
-                  </p>
-                  <p className="mb-0">
-                    `telemetry.addData()` should append data into this panel without touching render
+                    `motor.setPower()` and target-position calls update simulator state, not mesh
                     objects.
                   </p>
                   <p className="mb-0">
-                    `window.codeARobotSimulator` is now exposed for future browser-side bridge code
-                    and debug testing.
+                    `servo.setPosition()` maps to claw state and renders through the animation
+                    loop.
+                  </p>
+                  <p className="mb-0">
+                    `window.codeARobotSimulator` is exposed for future browser-side bridge code and
+                    debug testing.
                   </p>
                 </CardContent>
               </Card>
-
-              <SimulatorJavaHarness bridge={bridge} />
             </div>
+
+            <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-xl text-white">Telemetry / Debug</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Live simulator snapshot for encoder, run mode, targets, and motion state.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-sm">
+                  {snapshot.telemetry.map((entry) => (
+                    <div
+                      key={entry.label}
+                      className="flex items-center justify-between gap-4 border-b border-slate-800/70 pb-2 last:border-b-0 last:pb-0"
+                    >
+                      <span className="text-slate-400">{entry.label}</span>
+                      <span className="text-right text-slate-100">{entry.value}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-slate-800 bg-slate-950/80 text-slate-100 shadow-none">
+              <CardHeader>
+                <CardTitle className="text-xl text-white">Bridge Event Log</CardTitle>
+                <CardDescription className="text-slate-400">
+                  Recent bridge calls from UI controls and Java runtime code.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-xs sm:text-sm">
+                  {snapshot.telemetryLog.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="flex items-start justify-between gap-4 border-b border-slate-800/70 pb-2 last:border-b-0 last:pb-0"
+                    >
+                      <span className="text-slate-400">{entry.timestampLabel}</span>
+                      <span className="text-right text-slate-100">{entry.message}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

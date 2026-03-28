@@ -1,6 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import AceEditor from "react-ace";
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-monokai";
+import "ace-builds/src-noconflict/ext-language_tools";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,10 +28,17 @@ interface HarnessLogEntry {
   message: string;
 }
 
-const DEMO_FILES = [
-  {
-    name: "SimulatorNative.java",
-    content: `package sim.bridge;
+interface HarnessFile {
+  id: string;
+  name: string;
+  content: string;
+}
+
+function createSupportFiles(): Array<{ name: string; content: string }> {
+  return [
+    {
+      name: "SimulatorNative.java",
+      content: `package sim.bridge;
 
 public class SimulatorNative {
   public static native void setMotorPower(String deviceName, double power);
@@ -40,17 +51,18 @@ public class SimulatorNative {
   public static native void waitForStart();
 }
 `,
-  },
-  {
-    name: "DcMotor.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "DcMotor.java",
+      content: `package sim.ftc;
 
 import sim.bridge.SimulatorNative;
 
 public class DcMotor {
   public enum RunMode {
     RUN_WITHOUT_ENCODER,
-    RUN_TO_POSITION
+    RUN_TO_POSITION,
+    STOP_AND_RESET_ENCODER
   }
 
   private final String deviceName;
@@ -86,10 +98,10 @@ public class DcMotor {
   }
 }
 `,
-  },
-  {
-    name: "ElapsedTime.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "ElapsedTime.java",
+      content: `package sim.ftc;
 
 public class ElapsedTime {
   private long startTimeNanos;
@@ -107,10 +119,10 @@ public class ElapsedTime {
   }
 }
 `,
-  },
-  {
-    name: "Servo.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "Servo.java",
+      content: `package sim.ftc;
 
 import sim.bridge.SimulatorNative;
 
@@ -126,10 +138,10 @@ public class Servo {
   }
 }
 `,
-  },
-  {
-    name: "Telemetry.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "Telemetry.java",
+      content: `package sim.ftc;
 
 import sim.bridge.SimulatorNative;
 
@@ -139,10 +151,10 @@ public class Telemetry {
   }
 }
 `,
-  },
-  {
-    name: "HardwareMap.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "HardwareMap.java",
+      content: `package sim.ftc;
 
 public class HardwareMap {
   public <T> T get(Class<T> deviceClass, String deviceName) {
@@ -160,10 +172,10 @@ public class HardwareMap {
   }
 }
 `,
-  },
-  {
-    name: "LinearOpMode.java",
-    content: `package sim.ftc;
+    },
+    {
+      name: "LinearOpMode.java",
+      content: `package sim.ftc;
 
 public abstract class LinearOpMode {
   public final HardwareMap hardwareMap = new HardwareMap();
@@ -188,10 +200,16 @@ public abstract class LinearOpMode {
   }
 }
 `,
-  },
-  {
-    name: "MechanismTestOpMode.java",
-    content: `package sim.demo;
+    },
+  ];
+}
+
+function createDefaultHarnessFiles(): HarnessFile[] {
+  return [
+    {
+      id: "1",
+      name: "MechanismTestOpMode.java",
+      content: `package sim.demo;
 
 import sim.ftc.DcMotor;
 import sim.ftc.ElapsedTime;
@@ -213,6 +231,8 @@ public class MechanismTestOpMode extends LinearOpMode {
     }
 
     timer.reset();
+    armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     telemetry.addData("status", "starting mechanism test");
     clawServo.setPosition(1.0);
     sleep(500);
@@ -246,10 +266,11 @@ public class MechanismTestOpMode extends LinearOpMode {
   }
 }
 `,
-  },
-  {
-    name: "Main.java",
-    content: `package sim.demo;
+    },
+    {
+      id: "2",
+      name: "Main.java",
+      content: `package sim.demo;
 
 public class Main {
   public static void main(String[] args) throws Exception {
@@ -257,8 +278,9 @@ public class Main {
   }
 }
 `,
-  },
-];
+    },
+  ];
+}
 
 const HARNESS_HTML = `<!DOCTYPE html>
 <html>
@@ -518,9 +540,16 @@ export default function SimulatorJavaHarness({
   const [status, setStatus] = useState<HarnessStatus>("loading");
   const [awaitingStart, setAwaitingStart] = useState(false);
   const [pendingRun, setPendingRun] = useState(false);
+  const [files, setFiles] = useState<HarnessFile[]>(() => createDefaultHarnessFiles());
+  const [activeFileId, setActiveFileId] = useState("1");
   const [logEntries, setLogEntries] = useState<HarnessLogEntry[]>([
     { id: 1, tone: "default", message: "Preparing isolated CheerpJ harness..." },
   ]);
+
+  const activeFile = useMemo(
+    () => files.find((file) => file.id === activeFileId) ?? files[0],
+    [activeFileId, files]
+  );
 
   const appendLog = useCallback((message: string, tone: HarnessLogEntry["tone"] = "default") => {
     setLogEntries((previousEntries) => [
@@ -542,7 +571,7 @@ export default function SimulatorJavaHarness({
       switch (event.data.type) {
         case "sim-java-ready":
           setStatus("ready");
-          appendLog("CheerpJ native-method harness is ready.", "success");
+          appendLog("CheerpJ simulator runtime is ready.", "success");
           break;
         case "sim-java-log":
           appendLog(String(event.data.message));
@@ -579,7 +608,10 @@ export default function SimulatorJavaHarness({
         case "sim-java-set-motor-mode":
           bridge.setMotorMode(
             String(event.data.deviceName),
-            String(event.data.mode) as "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION"
+            String(event.data.mode) as
+              | "RUN_WITHOUT_ENCODER"
+              | "RUN_TO_POSITION"
+              | "STOP_AND_RESET_ENCODER"
           );
           break;
         case "sim-java-motor-busy-request":
@@ -602,7 +634,7 @@ export default function SimulatorJavaHarness({
           setStatus("ready");
           setAwaitingStart(false);
           setPendingRun(false);
-          appendLog("Java bridge demo completed.", "success");
+          appendLog("User code completed against the simulator runtime.", "success");
           break;
         case "sim-java-error":
           setStatus("error");
@@ -629,15 +661,18 @@ export default function SimulatorJavaHarness({
     setAwaitingStart(false);
     setPendingRun(false);
     bridge.reset();
-    appendLog("Posting Java demo files into CheerpJ...");
+    appendLog("Compiling user code with the hidden simulator runtime...");
     iframeRef.current.contentWindow.postMessage(
       {
         type: "sim-java-run-demo",
-        files: DEMO_FILES,
+        files: [
+          ...createSupportFiles(),
+          ...files.map(({ name, content }) => ({ name, content })),
+        ],
       },
       "*"
     );
-  }, [appendLog, bridge]);
+  }, [appendLog, bridge, files]);
 
   const runDemo = useCallback(() => {
     if (status === "loading") {
@@ -675,6 +710,20 @@ export default function SimulatorJavaHarness({
     );
   }, [appendLog]);
 
+  const resetFiles = useCallback(() => {
+    setFiles(createDefaultHarnessFiles());
+    setActiveFileId("1");
+    appendLog("Editable user files reset to defaults.", "success");
+  }, [appendLog]);
+
+  const handleFileChange = useCallback((nextContent: string) => {
+    setFiles((previousFiles) =>
+      previousFiles.map((file) =>
+        file.id === activeFileId ? { ...file, content: nextContent } : file
+      )
+    );
+  }, [activeFileId]);
+
   const statusLabel = useMemo(() => {
     switch (status) {
       case "loading":
@@ -711,6 +760,9 @@ export default function SimulatorJavaHarness({
             >
               Start OpMode
             </Button>
+            <Button variant="outline" onClick={resetFiles} className="bg-slate-900 text-slate-100">
+              Reset Files
+            </Button>
           </div>
         </div>
 
@@ -721,13 +773,47 @@ export default function SimulatorJavaHarness({
           className="h-24 w-full rounded-2xl border border-slate-800 bg-slate-950"
         />
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
-          <p className="mb-3 font-mono text-xs text-slate-400">
-            Mock FTC demo files injected into CheerpJ:
-          </p>
-          <pre className="mb-0 overflow-x-auto whitespace-pre-wrap rounded-xl bg-slate-950 p-3 font-mono text-xs text-slate-200">
-{DEMO_FILES.map((file) => `// ${file.name}\n${file.content}`).join("\n")}
-          </pre>
+        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+          <div className="border-b border-slate-800 px-4 py-3 text-xs uppercase tracking-[0.22em] text-slate-400">
+            User Java Workbench
+          </div>
+          <div className="flex flex-wrap border-b border-slate-800 bg-slate-900/70">
+            {files.map((file) => (
+              <button
+                key={file.id}
+                onClick={() => setActiveFileId(file.id)}
+                className={`border-r border-slate-800 px-4 py-2 text-sm transition-colors ${
+                  activeFile?.id === file.id
+                    ? "bg-slate-950 text-white"
+                    : "text-slate-400 hover:bg-slate-900 hover:text-slate-200"
+                }`}
+              >
+                {file.name}
+              </button>
+            ))}
+          </div>
+          <div className="h-[420px]">
+            {activeFile ? (
+              <AceEditor
+                mode="java"
+                theme="monokai"
+                name="simulator-java-workbench"
+                value={activeFile.content}
+                onChange={handleFileChange}
+                width="100%"
+                height="100%"
+                setOptions={{
+                  enableBasicAutocompletion: true,
+                  enableLiveAutocompletion: true,
+                  enableSnippets: true,
+                  fontSize: 14,
+                  showPrintMargin: false,
+                  useWorker: false,
+                  wrap: true,
+                }}
+              />
+            ) : null}
+          </div>
         </div>
 
         <div className="space-y-2 rounded-2xl border border-slate-800 bg-slate-900/70 p-4 font-mono text-xs sm:text-sm">
@@ -746,6 +832,11 @@ export default function SimulatorJavaHarness({
             </div>
           ))}
         </div>
+
+        <p className="mb-0 text-xs text-slate-500">
+          The FTC mock classes and simulator bridge runtime are injected automatically and are not
+          user-editable here.
+        </p>
       </CardContent>
     </Card>
   );

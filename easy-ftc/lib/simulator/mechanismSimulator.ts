@@ -31,7 +31,7 @@ export interface SimulatorState {
   telemetryLog: SimulatorLogEntry[];
   nextLogId: number;
   armEncoderTicks: number;
-  motorRunMode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
+  motorRunMode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION" | "STOP_AND_RESET_ENCODER";
   motorTargetTicks: number;
   motorPower: number;
 }
@@ -46,7 +46,7 @@ export type SimulatorAction =
   | { type: "SET_ARM_TARGET_TICKS"; targetTicks: number }
   | {
       type: "SET_MOTOR_MODE";
-      mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
+      mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION" | "STOP_AND_RESET_ENCODER";
     }
   | { type: "SET_MOTOR_POWER"; power: number }
   | { type: "SET_CLAW"; amount: number }
@@ -175,6 +175,13 @@ function reduceSimulatorState(
       break;
     case "SET_MOTOR_MODE":
       nextState.motorRunMode = action.mode;
+      if (action.mode === "STOP_AND_RESET_ENCODER") {
+        nextState.armEncoderTicks = 0;
+        nextState.armAngleDeg = 0;
+        nextState.armTargetDeg = 0;
+        nextState.motorTargetTicks = 0;
+        nextState.motorPower = 0;
+      }
       nextState.lastAction = `Motor mode: ${action.mode}`;
       break;
     case "SET_MOTOR_POWER":
@@ -284,7 +291,10 @@ export function createSimulatorStore(): SimulatorStore {
           state.armMinDeg,
           state.armMaxDeg
         );
-      } else if (state.motorRunMode === "RUN_WITHOUT_ENCODER" && Math.abs(state.motorPower) > 0.001) {
+      } else if (
+        state.motorRunMode === "RUN_WITHOUT_ENCODER" &&
+        Math.abs(state.motorPower) > 0.001
+      ) {
         nextState.armTargetDeg = clamp(
           state.armAngleDeg + state.motorPower * state.armSpeedDegPerSecond * 0.35,
           state.armMinDeg,
@@ -330,7 +340,9 @@ export interface SimulatorBridge {
   closeClaw: () => void;
   dispatchAction: (action: SimulatorAction) => void;
   getSnapshot: () => SimulatorState;
-  getMotorMode: (deviceName: string) => "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION";
+  getMotorMode: (
+    deviceName: string
+  ) => "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION" | "STOP_AND_RESET_ENCODER";
   openClaw: () => void;
   reset: () => void;
   run: () => void;
@@ -339,7 +351,7 @@ export interface SimulatorBridge {
   isMotorBusy: (deviceName: string) => boolean;
   setMotorMode: (
     deviceName: string,
-    mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION"
+    mode: "RUN_WITHOUT_ENCODER" | "RUN_TO_POSITION" | "STOP_AND_RESET_ENCODER"
   ) => void;
   setMotorTargetPosition: (deviceName: string, targetTicks: number) => void;
   setServoPosition: (deviceName: string, position: number) => void;
