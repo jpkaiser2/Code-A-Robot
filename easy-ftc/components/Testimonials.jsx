@@ -135,5 +135,26 @@ const defaultTestimonials = [
     quote:
       "This has helped me to understand the overwhelming FTC code and also explains what certain parts of the robot does. This has helped me to become a better coder since when I first got into this I didn't know how to code but ever since this I have learned to code better and think smarter.",
   },
+  {
+    id: 'skylar',
+    name: 'Skyler',
+    location: 'Washington',
+    quote:
+      "I liked how easy it to come in having a basic knowledge of java programming and easily lear the robot side of things without all the hassle of pouring through forums looking for the correct syntax for the commands. I also loved how it showed step by step how to take your programming to the next level even beyond what was taught on the site.",
+  },
+  {
+    id: 'mostafa',
+    name: 'Mostafa',
+    location: 'North Carolina',
+    quote:
+      "This is a very useful website and app for FTC students that I've used to help coach them. Thank you!! Keep on keeping on.",
+  },
+  {
+    id: 'crosby',
+    name: 'Crosby',
+    location: 'Utah',
+    quote:
+      "As an already fairly experienced software dev, Code-A-Robot helped me learn java syntax fast!",
+  },
   
 ];
